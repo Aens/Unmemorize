@@ -1,7 +1,8 @@
 # coding=utf-8
 """Code by Aens"""
-import sys
 from datetime import datetime
+import sys
+import pyperclip
 from pathlib import Path
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import QSize, QPoint
