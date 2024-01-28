@@ -50,7 +50,7 @@ class Notepad:
             try:
                 with open(new_note_path, 'w') as file:
                     file.write("")  # Creating an empty note for now
-                print(f"Note '{new_name}' added successfully.")
+                self.gui.show_in_statusbar(f"Nota '{new_name}' creada con exito.")
             except Exception as e:
                 print(f"Error creating note '{new_name}': {e}")
 
@@ -59,14 +59,14 @@ class Notepad:
         source_filepath = self.folderpath.joinpath(f"{name}.txt")
         destination_filepath = self.deleted_folderpath.joinpath(f"{name}.txt")
         source_filepath.rename(destination_filepath)
-        print(f"File moved from {source_filepath} to {destination_filepath}")
+        self.gui.show_in_statusbar(f"Fichero {source_filepath} copiado a {destination_filepath}")
 
     def save_note(self, filename: str, value: str) -> None:
         """Saves a note with this new values"""
         new_note_path = self.folderpath.joinpath(f"{filename}.txt")
         with open(new_note_path, 'w') as file:
             file.write(value)  # Overwriting the content of that note
-        print(f"Nota '{filename}' guardada con exito.")
+        self.gui.show_in_statusbar(f"Nota '{filename}' guardada con exito.")
 
 
 class GUI(QtWidgets.QMainWindow):
@@ -93,6 +93,15 @@ class GUI(QtWidgets.QMainWindow):
         self.notepad.reload_notes()
         # Finally set the layour
         self.create_layout()
+
+    def show_in_statusbar(self, message: str):
+        """Show something in the statusbar for a little bit"""
+        self.statusBar.setStyleSheet("background-color: lightgreen;")
+        self.statusBar.showMessage(message)
+        # Use a QTimer to revert the background color after a few seconds
+        timer = QtCore.QTimer(self)
+        timer.timeout.connect(lambda: self.statusBar.setStyleSheet(""))
+        timer.start(3000)  # 3000 milliseconds (3 seconds)
 
     def load_window_config(self):
         """Self-explanatory. It stores the data from a INI file"""
@@ -201,7 +210,7 @@ class GUI(QtWidgets.QMainWindow):
     def copy_note(self, name: str, obj: str) -> None:
         """Copy the note into notepad"""
         pyperclip.copy(obj.toPlainText())
-        self.statusBar.showMessage(f"Nota {name} copiada al portapapeles.")
+        self.show_in_statusbar(f"Nota {name} copiada al portapapeles.")
 
     def delete_note(self, name: str) -> None:
         """Delete the note and reload the layout"""
