@@ -78,37 +78,51 @@ class GUI(QtWidgets.QMainWindow):
                 self.save_window_config()  # Store the window size to the config file
         return super().eventFilter(watched, event)
 
+
     def create_layout(self):
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
 
-        main_layout = QtWidgets.QVBoxLayout(central_widget)
+        main_layout = QtWidgets.QGridLayout(central_widget)
 
         add_note_button = QtWidgets.QPushButton('Add Note')
         add_note_button.clicked.connect(self.add_note)
-        main_layout.addWidget(add_note_button)
+        main_layout.addWidget(add_note_button, 0, 0, 1, 1)  # Button in the first row, first column
 
         scroll_area = QtWidgets.QScrollArea(self)
         scroll_widget = QtWidgets.QWidget(scroll_area)
-        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+        scroll_layout = QtWidgets.QGridLayout(scroll_widget)
 
-        for key, value in self.notepad.notes.items():
-            label = QtWidgets.QLabel(f"{key}:")
+        row = 0
+        col = 0
+
+        for index, (key, value) in enumerate(self.notepad.notes.items()):
+            label_input = QtWidgets.QLineEdit(key)
             text_edit = QtWidgets.QTextEdit()
             text_edit.setPlainText(value)
             text_edit.setReadOnly(True)
 
-            scroll_layout.addWidget(label)
-            scroll_layout.addWidget(text_edit)
+            scroll_layout.addWidget(label_input, row, col, 1, 2)  # Span 2 columns for QLineEdit
+            scroll_layout.addWidget(text_edit, row + 1, col, 1, 2)  # Start from the row below QLineEdit
+
+            row += 2  # Increment by 2 to leave space for QLineEdit
+
+            # Check if we need to start a new column
+            if row > 4:
+                row = 0
+                col += 2
 
         scroll_widget.setLayout(scroll_layout)
         scroll_area.setWidget(scroll_widget)
         scroll_area.setWidgetResizable(True)
 
-        main_layout.addWidget(scroll_area)
+        main_layout.addWidget(scroll_area, 1, 0, 1, 2)  # Scroll area in the second row, spanning two columns
 
     def add_note(self):
-        # do something
+        # capture name
+        # create file
+        # save file
+        # reload layout
         pass
 
     def show_popup(self, message):
