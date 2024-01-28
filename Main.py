@@ -59,7 +59,7 @@ class Notepad:
         source_filepath = self.folderpath.joinpath(f"{name}.txt")
         destination_filepath = self.deleted_folderpath.joinpath(f"{name}.txt")
         source_filepath.rename(destination_filepath)
-        self.gui.show_in_statusbar(f"Fichero {source_filepath} copiado a {destination_filepath}")
+        self.gui.show_in_statusbar(f"Se ha movido el fichero: {source_filepath} --> {destination_filepath}")
 
     def save_note(self, filename: str, value: str) -> None:
         """Saves a note with this new values"""
