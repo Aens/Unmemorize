@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from PySide6 import QtWidgets, QtGui, QtCore
 import keyboard
-from PySide6.QtCore import QCoreApplication
+from PySide6.QtCore import QSize, QPoint
 from PySide6.QtWidgets import QApplication
 
 
@@ -34,69 +34,47 @@ class Notepad:
                 self.notes[title] = content
 
 
-class GUI:
+class GUI(QtWidgets.QMainWindow):
     """A GUI to control the notes in an easy to manage interface"""
 
-    def __init__(self, notepad):
-        """Initialize the window layout"""
+    def __init__(self, app: QApplication, notepad: Notepad):
+        """Initialize the window settings, layour and everything"""
+        super().__init__()
+        self.app = app
         self.config_file = 'program_settings.ini'
         self.notepad = notepad  # Pointer to our notepad
-        self.DEFAULT_WINDOW_SIZE = (800, 600)
-        self.DEFAULT_WINDOW_POSITION = (200, 200)
+        self.DEFAULT_WINDOW_SIZE = QSize(800, 600)
+        self.DEFAULT_WINDOW_POSITION = QPoint(200, 200)
         self.DEFAULT_WINDOW_TRANSPARENCY = 0.8
-        self.app = None
-        self.window = None
 
-    def load_window_size(self):
-        """Load window size from the config file"""
-        try:
-            settings = QtCore.QSettings(self.config_file, QtCore.QSettings.IniFormat)
-            size = settings.value("Window/size", self.DEFAULT_WINDOW_SIZE)
-            return size
-        except Exception as e:
-            print(e)
-            return self.DEFAULT_WINDOW_SIZE
-
-    def load_window_config(self):
-        """Self-explanatory. It stores the data from a INI file"""
-        settings = QtCore.QSettings(self.config_file, QtCore.QSettings.IniFormat)
-        size = settings.value("Window/size", self.DEFAULT_WINDOW_SIZE)
-        location = settings.value("Window/location", self.DEFAULT_WINDOW_POSITION)
-        # Set window size and location
-        self.window.resize(size[0], size[1])
-        self.window.move(location[0], location[1])
-
-    def save_window_config(self):
-        """Self-explanatory. It gets the data from a INI file"""
-        settings = QtCore.QSettings(self.config_file, QtCore.QSettings.IniFormat)
-        settings.setValue("Window/size", self.window.size())
-        settings.setValue("Window/location", self.window.pos())
-
-    def create_window(self):
-        """Create the window"""
-        if self.app is None:
-            self.app = QApplication(sys.argv)
         # First reload the notepad
         self.notepad.reload_notes()
         # Load window size from the config file, set the layout and build the window
         layout = self.build_layout()
-        self.window = QtWidgets.QWidget()
-        self.window.setWindowTitle(f"Unmemorize {__VERSION__} by {__AUTHOR__}")
-        self.window.setLayout(layout)
-        self.window.resize(*self.load_window_size())
+        self.setWindowTitle(f"Unmemorize {__VERSION__} by {__AUTHOR__}")
+        self.setLayout(layout)
         self.load_window_config()
-        self.window.show()
         # Install an event filter on the main window
-        self.window.installEventFilter(self.window)  # TODO arregla esto
-        # Run the application's event loop
-        sys.exit(self.app.exec())
+        self.installEventFilter(self)
+        self.show()
+
+    def load_window_config(self):
+        """Self-explanatory. It stores the data from a INI file"""
+        settings = QtCore.QSettings(self.config_file, QtCore.QSettings.IniFormat)
+        self.resize(settings.value("Window/size", self.DEFAULT_WINDOW_SIZE))
+        self.move(settings.value("Window/location", self.DEFAULT_WINDOW_POSITION))
+
+    def save_window_config(self):
+        """Self-explanatory. It gets the data from a INI file"""
+        settings = QtCore.QSettings(self.config_file, QtCore.QSettings.IniFormat)
+        settings.setValue("Window/size", self.size())
+        settings.setValue("Window/location", self.pos())
 
     def eventFilter(self, watched, event):
         """Event filter to handle events on the main window"""
-        print("hay evento")
-        if watched == self.window:
+        if watched == self:
             if event.type() == QtCore.QEvent.WindowStateChange:
-                if self.window.isMinimized():
+                if self.isMinimized():
                     print("Window minimized")
             elif event.type() == QtCore.QEvent.Close:
                 print("Window closed")
@@ -138,7 +116,7 @@ class GUI:
 
     def show_popup(self, message):
         """Show a Pop-up with a message"""
-        QtWidgets.QMessageBox.information(self.window, "Information", message)
+        QtWidgets.QMessageBox.information(self, "Information", message)
 
 
 class Keybinds:
@@ -183,8 +161,8 @@ def loader():
     print(f"{datetime.now()}: Load virtual Notepad.")
     notepad = Notepad()
     print(f"{datetime.now()}: Load GUIs.")
-    settings = GUI(notepad=notepad)
-    settings.create_window()
+    app = QApplication(sys.argv)
+    main_window = GUI(app=app, notepad=notepad)
     print(f"{datetime.now()}: Load Keybinds.")
     # keys = Keybinds(notepad=notepad, gui=settings)
     # print(f"{datetime.now()}: Start endless loop and wait for commands.")
@@ -193,6 +171,8 @@ def loader():
     # print(f"{datetime.now()}: Clean up and close this program.")
     # keys.close_program()
 
+    # Run the application's event loop
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     loader()  # Initialize the program
