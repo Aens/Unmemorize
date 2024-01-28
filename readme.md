@@ -24,6 +24,6 @@ Either run the file: `run.bat` or just while you are on the virtual environment,
 
 # Technologies
 This project utilizes the next technologies and libraries:
-* Python 3.11 (Programming language)
-* PySide6 6.6.1 (Bindings for Python of the C++ Qt framework)
+* Python 3.11 (Programming language: https://www.python.org)
+* PySide6 6.6.1 (Bindings for Python of the C++ Qt framework: https://www.qt.io/qt-for-python)
 
