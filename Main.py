@@ -85,6 +85,8 @@ class GUI(QtWidgets.QMainWindow):
         self.load_window_config()
         self.setWindowIcon(QIcon(str(Path.cwd().joinpath("MainIcon.png"))))
         self.setWindowTitle(f"Unmemorize {__VERSION__} by {__AUTHOR__}")
+        # Add a status bar
+        self.statusBar = self.statusBar()
         # Install an event filter on the main window
         self.installEventFilter(self)
         # Load the notes in memory
@@ -158,7 +160,7 @@ class GUI(QtWidgets.QMainWindow):
             # Connect buttons to functions
             button_edit.clicked.connect(lambda name=key, obj=text_edit: self.save_note(name, obj))
             button_delete.clicked.connect(lambda name=key, v=value: self.delete_note(name))
-            button_copy.clicked.connect(lambda name=key, obj=text_edit: self.copy_note(obj))
+            button_copy.clicked.connect(lambda name=key, obj=text_edit: self.copy_note(name, obj))
 
             # Add buttons into the layout (element, row, col, IDK, spans this many columns)
             scroll_layout.addWidget(label, row, col, 1, 1)
@@ -196,10 +198,10 @@ class GUI(QtWidgets.QMainWindow):
         # Rebuild the layout
         self.create_layout()
 
-    @staticmethod
-    def copy_note(obj: str) -> None:
+    def copy_note(self, name: str, obj: str) -> None:
         """Copy the note into notepad"""
         pyperclip.copy(obj.toPlainText())
+        self.statusBar.showMessage(f"Nota {name} copiada al portapapeles.")
 
     def delete_note(self, name: str) -> None:
         """Delete the note and reload the layout"""
