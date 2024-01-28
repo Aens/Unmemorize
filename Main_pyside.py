@@ -76,8 +76,6 @@ class GUI:
         """Create the window"""
         if self.app is None:
             self.app = QApplication(sys.argv)
-        # Connect the close event signal to the cleanup function
-        QCoreApplication.instance().aboutToQuit.connect(self.close_event_handler)
         # First reload the notepad
         self.notepad.reload_notes()
         # Load window size from the config file, set the layout and build the window
@@ -88,16 +86,22 @@ class GUI:
         self.window.resize(*self.load_window_size())
         self.load_window_config()
         self.window.show()
+        # Install an event filter on the main window
+        self.window.installEventFilter(self.window)  # TODO arregla esto
         # Run the application's event loop
         sys.exit(self.app.exec())
 
-    def event_handler(self):
-        """Handle the GUI events"""
-
-    def close_event_handler(self, event):
-        """Close event handler"""
-        self.save_window_config()  # Store the window size to the config file
-        event.accept()
+    def eventFilter(self, watched, event):
+        """Event filter to handle events on the main window"""
+        print("hay evento")
+        if watched == self.window:
+            if event.type() == QtCore.QEvent.WindowStateChange:
+                if self.window.isMinimized():
+                    print("Window minimized")
+            elif event.type() == QtCore.QEvent.Close:
+                print("Window closed")
+                self.save_window_config()  # Store the window size to the config file
+        return super().eventFilter(watched, event)
 
     def build_layout(self) -> QtWidgets.QVBoxLayout:
         """Build the layout for the APP"""
@@ -167,8 +171,15 @@ class Keybinds:
 ##########
 # LOADER #
 ##########
+
+def make_sure_folder_exists(fullpath: Path):
+    """Dinamycally create the folder if it doesn't exist."""
+    fullpath.mkdir(parents=True, exist_ok=True)
+
+
 def loader():
     """Loader"""
+    make_sure_folder_exists(Path.cwd().joinpath("notes"))
     print(f"{datetime.now()}: Load virtual Notepad.")
     notepad = Notepad()
     print(f"{datetime.now()}: Load GUIs.")
@@ -185,3 +196,6 @@ def loader():
 
 if __name__ == "__main__":
     loader()  # Initialize the program
+
+
+ # TODO add a main icon
