@@ -1,5 +1,5 @@
 # coding=utf-8
-"""Code by Alejandro Gutierrez Almansa"""
+"""Code by Aens"""
 from datetime import datetime
 import keyboard
 import sys
