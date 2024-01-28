@@ -1,7 +1,8 @@
 # Installation
-* Download python: https://www.python.org/downloads/release/python-3117/ (if you are new to python and you are on windows, just go to the bottom and download the recommended one)
-* Install it (Make sure you checkbox adding it to the PATH, if needed)
-* Run the file `window_installer.bat`.
+1. Download python: https://www.python.org/downloads/release/python-3117/ (if you are new to python, and you are on windows, just go to the bottom and download the recommended one).
+2. Install it (Make sure you checkbox adding it to the PATH, if needed).
+3. Download everything on this project and store it in a folder in your PC.
+4. Run the file `window_installer.bat`.
 
 That's it, really.
 
