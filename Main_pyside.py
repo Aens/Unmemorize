@@ -20,6 +20,7 @@ class Notepad:
         """Load fields from a text file"""
         self.notes = {}
         self.folderpath = Path.cwd().joinpath("notes")
+        self.deleted_folderpath = Path.cwd().joinpath("old_notes")
         self.reload_notes()
 
     def reload_notes(self):
@@ -32,6 +33,16 @@ class Notepad:
             with open(file, encoding="UTF-8") as f:
                 content = f.read()
                 self.notes[title] = content
+
+    def delete_note(self, name):
+        """It doesn't delete notes, it just moves them to a different folder"""
+        source_filepath = self.folderpath.joinpath(f"{name}.txt")
+        destination_filepath = self.deleted_folderpath.joinpath(f"{name}.txt")
+        source_filepath.rename(destination_filepath)
+        print(f"File moved from {source_filepath} to {destination_filepath}")
+
+    def edit_note(self, key):
+        print(f"Edit button clicked for note: {key}")
 
 
 class GUI(QtWidgets.QMainWindow):
@@ -87,7 +98,11 @@ class GUI(QtWidgets.QMainWindow):
 
         add_note_button = QtWidgets.QPushButton('Add Note')
         add_note_button.clicked.connect(self.add_note)
+        deleted_notes_label = QtWidgets.QLabel("Deleted notes are just moved to the Old Notes folder")  # TODO fix this
+        deleted_notes_label.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+
         main_layout.addWidget(add_note_button, 0, 0, 1, 1)  # Button in the first row, first column
+        main_layout.addWidget(deleted_notes_label, 0, 1, 1, 2)  # Label in the first row, spanning two columns
 
         scroll_area = QtWidgets.QScrollArea(self)
         scroll_widget = QtWidgets.QWidget(scroll_area)
@@ -105,8 +120,8 @@ class GUI(QtWidgets.QMainWindow):
             button_edit = QtWidgets.QPushButton("Edit")
             button_delete = QtWidgets.QPushButton("Delete")
 
-            button_edit.clicked.connect(lambda k=key, v=value: self.edit_note(k))
-            button_delete.clicked.connect(lambda k=key, v=value: self.delete_note(k))
+            button_edit.clicked.connect(lambda k=key, v=value: self.notepad.edit_note(k))
+            button_delete.clicked.connect(lambda k=key, v=value: self.notepad.delete_note(k))
 
             scroll_layout.addWidget(label_input, row, col, 1, 1)
             scroll_layout.addWidget(button_edit, row, col + 1, 1, 1)
@@ -124,13 +139,9 @@ class GUI(QtWidgets.QMainWindow):
         scroll_area.setWidget(scroll_widget)
         scroll_area.setWidgetResizable(True)
 
-        main_layout.addWidget(scroll_area, 1, 0, 1, 2)  # Scroll area in the second row, spanning two columns
-
-    def edit_note(self, key):
-        print(f"Edit button clicked for note: {key}")
-
-    def delete_note(self, key):
-        print(f"Delete button clicked for note: {key}")
+        # Scroll area in the second row, spanning two columns
+        # Spanning three columns to avoid bugs
+        main_layout.addWidget(scroll_area, 1, 0, 1, 3)
 
     def add_note(self):
         # capture name
@@ -156,6 +167,7 @@ def make_sure_folder_exists(fullpath: Path):
 def loader():
     """Loader"""
     make_sure_folder_exists(Path.cwd().joinpath("notes"))
+    make_sure_folder_exists(Path.cwd().joinpath("old_notes"))
     print(f"{datetime.now()}: Load virtual Notepad.")
     notepad = Notepad()
     print(f"{datetime.now()}: Load GUIs.")
