@@ -1,11 +1,16 @@
 # coding=utf-8
 """Code by Alejandro Gutierrez Almansa"""
+import sys
 from datetime import datetime
 from pathlib import Path
-import configparser
-import PySimpleGUI
+from PySide6 import QtWidgets, QtGui, QtCore
 import keyboard
-import time
+from PySide6.QtCore import QCoreApplication
+from PySide6.QtWidgets import QApplication
+
+
+__VERSION__ = "v0.2"
+__AUTHOR__ = "Alex"
 
 
 class Notepad:
@@ -39,83 +44,88 @@ class GUI:
         self.DEFAULT_WINDOW_SIZE = (800, 600)
         self.DEFAULT_WINDOW_POSITION = (200, 200)
         self.DEFAULT_WINDOW_TRANSPARENCY = 0.8
+        self.app = None
         self.window = None
 
     def load_window_size(self):
         """Load window size from the config file"""
         try:
-            config_values = PySimpleGUI.Window().Finalize().ReadLocation(self.config_file)
-            return int(config_values[0][0]), int(config_values[0][1])
+            settings = QtCore.QSettings(self.config_file, QtCore.QSettings.IniFormat)
+            size = settings.value("Window/size", self.DEFAULT_WINDOW_SIZE)
+            return size
         except Exception as e:
             print(e)
             return self.DEFAULT_WINDOW_SIZE
 
     def load_window_config(self):
         """Self-explanatory. It stores the data from a INI file"""
-        config = configparser.ConfigParser()
-        config.read(self.config_file)
-        if config.has_section('Window'):
-            size = eval(config.get('Window', 'size'))
-            location = eval(config.get('Window', 'location'))
-            # Set window size and location
-            self.window.size = size
-            self.window.set_location(location)
+        settings = QtCore.QSettings(self.config_file, QtCore.QSettings.IniFormat)
+        size = settings.value("Window/size", self.DEFAULT_WINDOW_SIZE)
+        location = settings.value("Window/location", self.DEFAULT_WINDOW_POSITION)
+        # Set window size and location
+        self.window.resize(size[0], size[1])
+        self.window.move(location[0], location[1])
 
     def save_window_config(self):
         """Self-explanatory. It gets the data from a INI file"""
-        config = configparser.ConfigParser()
-        config.read(self.config_file)
-        if not config.has_section('Window'):
-            config.add_section('Window')
-        config.set('Window', 'size', str(self.window.size))
-        config.set('Window', 'location', str(self.window.current_location()))
-        with open(self.config_file, 'w') as configfile:
-            config.write(configfile)
+        settings = QtCore.QSettings(self.config_file, QtCore.QSettings.IniFormat)
+        settings.setValue("Window/size", self.window.size())
+        settings.setValue("Window/location", self.window.pos())
 
     def create_window(self):
         """Create the window"""
-        self.window = None
+        if self.app is None:
+            self.app = QApplication(sys.argv)
+        # Connect the close event signal to the cleanup function
+        QCoreApplication.instance().aboutToQuit.connect(self.close_event_handler)
         # First reload the notepad
         self.notepad.reload_notes()
         # Load window size from the config file, set the layout and build the window
         layout = self.build_layout()
-        self.window = PySimpleGUI.Window(  # We get default values before loading real ones
-            title="Unmemorize", layout=layout, finalize=True, resizable=True, return_keyboard_events=True,
-            element_justification='left',
-            size=self.DEFAULT_WINDOW_SIZE,
-            location=self.DEFAULT_WINDOW_POSITION,
-            alpha_channel=self.DEFAULT_WINDOW_TRANSPARENCY)
-        # self.load_window_config()  # Load real values TODO enable later
-        self.event_handler()  # Launch the event handler
+        self.window = QtWidgets.QWidget()
+        self.window.setWindowTitle(f"Unmemorize {__VERSION__} by {__AUTHOR__}")
+        self.window.setLayout(layout)
+        self.window.resize(*self.load_window_size())
+        self.load_window_config()
+        self.window.show()
+        # Run the application's event loop
+        sys.exit(self.app.exec())
 
     def event_handler(self):
-        """Initialize the window loop and handle events"""
-        while True:
-            event, values = self.window.read()
-            if event == PySimpleGUI.WIN_CLOSED:
-                print(self.window.size)
-                self.save_window_config()  # Store the window size to the config file
-                break
-            elif event == 'Add Note':
-                self.add_note()
-                # self.show_popup(f"Field {field_number} Value: {values[event]}")  # TODO
-        # Close the window after saving the configuration
-        self.window.close()
+        """Handle the GUI events"""
 
-    def build_layout(self) -> list:
+    def close_event_handler(self, event):
+        """Close event handler"""
+        self.save_window_config()  # Store the window size to the config file
+        event.accept()
+
+    def build_layout(self) -> QtWidgets.QVBoxLayout:
         """Build the layout for the APP"""
-        layout = [
-            [PySimpleGUI.Button('Add Note')],
-            [PySimpleGUI.Column(
-                layout=[[PySimpleGUI.Text(f"{key}:"),
-                         PySimpleGUI.Multiline(
-                             default_text=value, key=key, autoscroll=True, write_only=True,
-                             size=(None, None), expand_x=True, expand_y=True)]
-                        for key, value in self.notepad.notes.items()],
-                vertical_scroll_only=False, scrollable=True,
-                size=(None, None), expand_x=True, expand_y=True
-                )]
-        ]
+        layout = QtWidgets.QVBoxLayout()
+
+        add_note_button = QtWidgets.QPushButton('Add Note')
+        add_note_button.clicked.connect(self.add_note)
+        layout.addWidget(add_note_button)
+
+        scroll_area = QtWidgets.QScrollArea()
+        scroll_area_widget = QtWidgets.QWidget()
+        scroll_area_layout = QtWidgets.QVBoxLayout()
+
+        for key, value in self.notepad.notes.items():
+            label = QtWidgets.QLabel(f"{key}:")
+            text_edit = QtWidgets.QTextEdit()
+            text_edit.setPlainText(value)
+            text_edit.setReadOnly(True)
+
+            scroll_area_layout.addWidget(label)
+            scroll_area_layout.addWidget(text_edit)
+
+        scroll_area_widget.setLayout(scroll_area_layout)
+        scroll_area.setWidget(scroll_area_widget)
+        scroll_area.setWidgetResizable(True)
+
+        layout.addWidget(scroll_area)
+
         return layout
 
     def add_note(self):
@@ -124,7 +134,7 @@ class GUI:
 
     def show_popup(self, message):
         """Show a Pop-up with a message"""
-        PySimpleGUI.popup(self, message)
+        QtWidgets.QMessageBox.information(self.window, "Information", message)
 
 
 class Keybinds:
@@ -163,13 +173,15 @@ def loader():
     notepad = Notepad()
     print(f"{datetime.now()}: Load GUIs.")
     settings = GUI(notepad=notepad)
+    settings.create_window()
     print(f"{datetime.now()}: Load Keybinds.")
-    keys = Keybinds(notepad=notepad, gui=settings)
-    print(f"{datetime.now()}: Start endless loop and wait for commands.")
-    keys.open_settings()
+    # keys = Keybinds(notepad=notepad, gui=settings)
+    # print(f"{datetime.now()}: Start endless loop and wait for commands.")
+    # keys.open_settings()
     # keyboard.wait("alt+q")  # TODO activa para continuar
-    print(f"{datetime.now()}: Clean up and close this program.")
-    keys.close_program()
+    # print(f"{datetime.now()}: Clean up and close this program.")
+    # keys.close_program()
 
 
-loader()  # Initialize the program
+if __name__ == "__main__":
+    loader()  # Initialize the program
