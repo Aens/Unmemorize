@@ -1,4 +1,4 @@
-# Installation
+## Installation
 1. Download python: https://www.python.org/downloads/release/python-3117/ (if you are new to python, and you are on windows, just go to the bottom and download the recommended one).
 2. Install it (Make sure you checkbox adding it to the PATH, if needed).
 3. Download everything on this project and store it in a folder in your PC.
@@ -6,7 +6,7 @@
 
 That's it, really.
 
-## Alternative Installation
+### Alternative Installation
 
 If the .bat file fails then alternative installation instructions are opening `CMD`, go to the folder where you want to install it and run this to create a virtual environment:
 ```
