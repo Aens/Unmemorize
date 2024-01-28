@@ -102,21 +102,35 @@ class GUI(QtWidgets.QMainWindow):
             text_edit.setPlainText(value)
             text_edit.setReadOnly(True)
 
-            scroll_layout.addWidget(label_input, row, col, 1, 2)  # Span 2 columns for QLineEdit
-            scroll_layout.addWidget(text_edit, row + 1, col, 1, 2)  # Start from the row below QLineEdit
+            button_edit = QtWidgets.QPushButton("Edit")
+            button_delete = QtWidgets.QPushButton("Delete")
 
-            row += 2  # Increment by 2 to leave space for QLineEdit
+            button_edit.clicked.connect(lambda k=key, v=value: self.edit_note(k))
+            button_delete.clicked.connect(lambda k=key, v=value: self.delete_note(k))
+
+            scroll_layout.addWidget(label_input, row, col, 1, 1)
+            scroll_layout.addWidget(button_edit, row, col + 1, 1, 1)
+            scroll_layout.addWidget(button_delete, row, col + 2, 1, 1)
+            scroll_layout.addWidget(text_edit, row + 1, col, 1, 3)  # Span 3 columns for QTextEdit
+
+            row += 2  # Increment by 2 to leave space for buttons
 
             # Check if we need to start a new column
             if row > 4:
                 row = 0
-                col += 2
+                col += 4  # Increment by 4 to leave space for buttons
 
         scroll_widget.setLayout(scroll_layout)
         scroll_area.setWidget(scroll_widget)
         scroll_area.setWidgetResizable(True)
 
         main_layout.addWidget(scroll_area, 1, 0, 1, 2)  # Scroll area in the second row, spanning two columns
+
+    def edit_note(self, key):
+        print(f"Edit button clicked for note: {key}")
+
+    def delete_note(self, key):
+        print(f"Delete button clicked for note: {key}")
 
     def add_note(self):
         # capture name
