@@ -5,6 +5,8 @@
 
 That's it, really.
 
+## Alternative Installation
+
 If the .bat file fails then alternative installation instructions are opening `CMD`, go to the folder where you want to install it and run this to create a virtual environment:
 ```
 python -m venv venv
@@ -20,7 +22,8 @@ deactivate
 ```
 
 # How to Run it
-Either run the file: `run.bat` or just while you are on the virtual environment, execute `python Main.py`
+* Either run the file: `run.bat`.
+* Or just while you are on the virtual environment, execute `python Main.py`
 
 # Technologies
 This project utilizes the next technologies and libraries:
