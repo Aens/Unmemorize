@@ -9,7 +9,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QInputDialog, QLineEdit
 
 __VERSION__ = "v0.3"
-__AUTHOR__ = "Aens"
+__AUTHOR__ = "Alex"
 
 
 class Notepad:
@@ -143,16 +143,27 @@ class GUI(QtWidgets.QMainWindow):
             text_edit.setPlainText(value)
             text_edit.setReadOnly(False)
 
-            button_edit = QtWidgets.QPushButton("Guardar")
-            button_delete = QtWidgets.QPushButton("Borrar")
+            # Create buttons
+            button_edit = QtWidgets.QPushButton("💾")
+            button_delete = QtWidgets.QPushButton("❌")
+            button_copy = QtWidgets.QPushButton("📝")
 
+            # Set fixed size for buttons
+            button_edit.setFixedSize(30, 30)
+            button_copy.setFixedSize(30, 30)
+            button_delete.setFixedSize(30, 30)
+
+            # Connect buttons to functions
             button_edit.clicked.connect(lambda name=key, obj=text_edit: self.save_note(name, obj))
             button_delete.clicked.connect(lambda name=key, v=value: self.delete_note(name))
+            button_copy.clicked.connect(lambda name=key, obj=text_edit: self.copy_note(obj))
 
+            # Add buttons into the layout (element, row, col, IDK, spans this many columns)
             scroll_layout.addWidget(label, row, col, 1, 1)
             scroll_layout.addWidget(button_edit, row, col + 1, 1, 1)
-            scroll_layout.addWidget(button_delete, row, col + 2, 1, 1)
-            scroll_layout.addWidget(text_edit, row + 1, col, 1, 3)  # Span 3 columns for QTextEdit
+            scroll_layout.addWidget(button_copy, row, col + 2, 1, 1)
+            scroll_layout.addWidget(button_delete, row, col + 3, 1, 1)
+            scroll_layout.addWidget(text_edit, row + 1, col, 1, 4)
 
             row += 2  # Increment by 2 to leave space for buttons
 
@@ -182,6 +193,10 @@ class GUI(QtWidgets.QMainWindow):
                         item.widget().deleteLater()
         # Rebuild the layout
         self.create_layout()
+
+    def copy_note(self, obj: str) -> None:
+        """Copy the note into notepad"""
+        print(obj.toPlainText())  # TODO copia al portapapeles
 
     def delete_note(self, name: str) -> None:
         """Delete the note and reload the layout"""
