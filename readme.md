@@ -1,15 +1,16 @@
 # Installation
-* Download python: https://www.python.org/downloads/release/python-3117/
-* Run the file `window_installer.bat`
+* Download python: https://www.python.org/downloads/release/python-3117/ (if you are new to python and you are on windows, just go to the bottom and download the recommended one)
+* Install it (Make sure you checkbox adding it to the PATH, if needed)
+* Run the file `window_installer.bat`.
 
 That's it, really.
 
-If the .bat file fails then alternative installation instructions are opening CMD, go to the folder where you want to install it and run:
+If the .bat file fails then alternative installation instructions are opening `CMD`, go to the folder where you want to install it and run this to create a virtual environment:
 ```
 python -m venv venv
 venv\Scripts\activate
 ```
-Wait for the Virtual Environment to be enabled and then just install the libraries with:
+Wait for the Virtual Environment to be enabled and then just install the libraries with the next command:
 ````
 pip install -r requirements.txt
 ````
@@ -25,4 +26,4 @@ Either run the file: `run.bat` or just while you are on the virtual environment,
 This project utilizes the next technologies and libraries:
 * Python 3.11 (Programming language)
 * PySide6 6.6.1 (Bindings for Python of the C++ Qt framework)
-    
+
