@@ -46,17 +46,14 @@ class GUI(QtWidgets.QMainWindow):
         self.DEFAULT_WINDOW_SIZE = QSize(800, 600)
         self.DEFAULT_WINDOW_POSITION = QPoint(200, 200)
         self.DEFAULT_WINDOW_TRANSPARENCY = 0.8
-
-        # First reload the notepad
-        self.notepad.reload_notes()
-        # Load window size from the config file, set the layout and build the window
-        layout = self.build_layout()
-        self.setWindowTitle(f"Unmemorize {__VERSION__} by {__AUTHOR__}")
-        self.setLayout(layout)
         self.load_window_config()
+        self.setWindowTitle(f"Unmemorize {__VERSION__} by {__AUTHOR__}")
         # Install an event filter on the main window
         self.installEventFilter(self)
-        self.show()
+        # Load the notes in memory
+        self.notepad.reload_notes()
+        # Finally set the layour
+        self.create_layout()
 
     def load_window_config(self):
         """Self-explanatory. It stores the data from a INI file"""
@@ -77,21 +74,22 @@ class GUI(QtWidgets.QMainWindow):
                 if self.isMinimized():
                     print("Window minimized")
             elif event.type() == QtCore.QEvent.Close:
-                print("Window closed")
                 self.save_window_config()  # Store the window size to the config file
         return super().eventFilter(watched, event)
 
-    def build_layout(self) -> QtWidgets.QVBoxLayout:
-        """Build the layout for the APP"""
-        layout = QtWidgets.QVBoxLayout()
+    def create_layout(self):
+        central_widget = QtWidgets.QWidget(self)
+        self.setCentralWidget(central_widget)
+
+        main_layout = QtWidgets.QVBoxLayout(central_widget)
 
         add_note_button = QtWidgets.QPushButton('Add Note')
         add_note_button.clicked.connect(self.add_note)
-        layout.addWidget(add_note_button)
+        main_layout.addWidget(add_note_button)
 
-        scroll_area = QtWidgets.QScrollArea()
-        scroll_area_widget = QtWidgets.QWidget()
-        scroll_area_layout = QtWidgets.QVBoxLayout()
+        scroll_area = QtWidgets.QScrollArea(self)
+        scroll_widget = QtWidgets.QWidget(scroll_area)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
 
         for key, value in self.notepad.notes.items():
             label = QtWidgets.QLabel(f"{key}:")
@@ -99,16 +97,14 @@ class GUI(QtWidgets.QMainWindow):
             text_edit.setPlainText(value)
             text_edit.setReadOnly(True)
 
-            scroll_area_layout.addWidget(label)
-            scroll_area_layout.addWidget(text_edit)
+            scroll_layout.addWidget(label)
+            scroll_layout.addWidget(text_edit)
 
-        scroll_area_widget.setLayout(scroll_area_layout)
-        scroll_area.setWidget(scroll_area_widget)
+        scroll_widget.setLayout(scroll_layout)
+        scroll_area.setWidget(scroll_widget)
         scroll_area.setWidgetResizable(True)
 
-        layout.addWidget(scroll_area)
-
-        return layout
+        main_layout.addWidget(scroll_area)
 
     def add_note(self):
         # do something
@@ -163,6 +159,7 @@ def loader():
     print(f"{datetime.now()}: Load GUIs.")
     app = QApplication(sys.argv)
     main_window = GUI(app=app, notepad=notepad)
+    main_window.show()
     print(f"{datetime.now()}: Load Keybinds.")
     # keys = Keybinds(notepad=notepad, gui=settings)
     # print(f"{datetime.now()}: Start endless loop and wait for commands.")
