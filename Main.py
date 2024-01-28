@@ -8,7 +8,8 @@ from PySide6.QtCore import QSize, QPoint
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QInputDialog, QLineEdit
 
-__VERSION__ = "v0.3"
+
+__VERSION__ = "v0.4"
 __AUTHOR__ = "Alex"
 
 
@@ -194,9 +195,10 @@ class GUI(QtWidgets.QMainWindow):
         # Rebuild the layout
         self.create_layout()
 
-    def copy_note(self, obj: str) -> None:
+    @staticmethod
+    def copy_note(obj: str) -> None:
         """Copy the note into notepad"""
-        print(obj.toPlainText())  # TODO copia al portapapeles
+        pyperclip.copy(obj.toPlainText())
 
     def delete_note(self, name: str) -> None:
         """Delete the note and reload the layout"""
