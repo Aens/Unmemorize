@@ -3,14 +3,14 @@
 import sys
 from datetime import datetime
 from pathlib import Path
-from PySide6 import QtWidgets, QtGui, QtCore
-import keyboard
+from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import QSize, QPoint
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
 
-__VERSION__ = "v0.2"
-__AUTHOR__ = "Alex"
+__VERSION__ = "v0.3"
+__AUTHOR__ = "Aens"
 
 
 class Notepad:
@@ -47,6 +47,7 @@ class GUI(QtWidgets.QMainWindow):
         self.DEFAULT_WINDOW_POSITION = QPoint(200, 200)
         self.DEFAULT_WINDOW_TRANSPARENCY = 0.8
         self.load_window_config()
+        self.setWindowIcon(QIcon(str(Path.cwd().joinpath("MainIcon.png"))))
         self.setWindowTitle(f"Unmemorize {__VERSION__} by {__AUTHOR__}")
         # Install an event filter on the main window
         self.installEventFilter(self)
@@ -115,33 +116,6 @@ class GUI(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.information(self, "Information", message)
 
 
-class Keybinds:
-    """Register keybinds to being able to work with this program"""
-
-    def __init__(self, notepad, gui):
-        """Register global shortcuts and pointers"""
-        self.notepad = notepad
-        self.gui = gui
-        # keyboard.add_hotkey('alt+d', lambda: PySimpleGUI.popup_get_choice("Choose a field:", fields, title="Select Field"))  # TODO
-        keyboard.add_hotkey('alt+d', self.pegar)
-        keyboard.add_hotkey('alt+f', self.open_settings)
-
-    def pegar(self):
-        """Paste code"""
-        print("pego codigo")
-
-    def open_settings(self):
-        """Opens the MainMenu Settings Window"""
-        print("DEBUG: Abro la GUI")
-        self.gui.create_window()
-
-    @staticmethod
-    def close_program():
-        """Close all the needed things and close the program"""
-        keyboard.unhook_all()  # Remove the hotkey to avoid conflicts after the window is closed
-        exit()
-
-
 ##########
 # LOADER #
 ##########
@@ -159,20 +133,10 @@ def loader():
     print(f"{datetime.now()}: Load GUIs.")
     app = QApplication(sys.argv)
     main_window = GUI(app=app, notepad=notepad)
-    main_window.show()
-    print(f"{datetime.now()}: Load Keybinds.")
-    # keys = Keybinds(notepad=notepad, gui=settings)
-    # print(f"{datetime.now()}: Start endless loop and wait for commands.")
-    # keys.open_settings()
-    # keyboard.wait("alt+q")  # TODO activa para continuar
-    # print(f"{datetime.now()}: Clean up and close this program.")
-    # keys.close_program()
-
     # Run the application's event loop
+    main_window.show()
     sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     loader()  # Initialize the program
-
-
- # TODO add a main icon
