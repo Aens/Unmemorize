@@ -2,6 +2,7 @@
 """Code by Alejandro Gutierrez Almansa"""
 from datetime import datetime
 from pathlib import Path
+import configparser
 import PySimpleGUI
 import keyboard
 
@@ -27,32 +28,75 @@ class Notepad:
                 self.notes[title] = content
 
 
-class Settings:
+class GUI:
     """A GUI to control the notes in an easy to manage interface"""
 
     def __init__(self, notepad):
-        """Initialize the window layour"""
+        """Initialize the window layout"""
+        self.config_file = 'program_settings.ini'
         self.notepad = notepad  # Pointer to our notepad
+        self.DEFAULT_WINDOW_SIZE = (800, 600)
+        self.DEFAULT_WINDOW_POSITION = (200, 200)
+        self.DEFAULT_WINDOW_TRANSPARENCY = 0.8
         self.window = None
+
+    def load_window_size(self):
+        """Load window size from the config file"""
+        try:
+            config_values = PySimpleGUI.Window().Finalize().ReadLocation(self.config_file)
+            return (int(config_values[0][0]), int(config_values[0][1]))
+        except Exception:
+            return self.DEFAULT_WINDOW_SIZE
+
+    def load_window_config(self):
+        """Self-explanatory. It stores the data from a INI file"""
+        config = configparser.ConfigParser()
+        config.read(self.config_file)
+        if config.has_section('Window'):
+            size = eval(config.get('Window', 'size'))
+            location = eval(config.get('Window', 'location'))
+            # Set window size and location
+            self.window.size = size
+            self.window.set_location(location)
+
+    def save_window_config(self):
+        """Self-explanatory. It gets the data from a INI file"""
+        config = configparser.ConfigParser()
+        config.read(self.config_file)
+        if not config.has_section('Window'):
+            config.add_section('Window')
+        print(self.window.size)
+        print(type(self.window.size))
+        config.set('Window', 'size', self.window.size)
+        config.set('Window', 'location', self.window.current_location())
+        with open(self.config_file, 'w') as configfile:
+            config.write(configfile)
 
     def create_window(self):
         """Create the window"""
         # First reload the notepad
         self.notepad.reload_notes()
-        # Now set the window options and setup
+        # Load window size from the config file, set the layout and build the window
+        window_size = self.load_window_size()
         layout = self.build_layout()
-        self.window = PySimpleGUI.Window("LazyMode Paster", layout, finalize=True, resizable=True)
-        # Initialize the window loop
+        self.window = PySimpleGUI.Window(  # We get default values before loading real ones
+            "LazyMode Paster", layout, finalize=True, resizable=True, size=window_size,
+            return_keyboard_events=True, location=self.DEFAULT_WINDOW_POSITION, element_justification='left',
+            alpha_channel=self.DEFAULT_WINDOW_TRANSPARENCY)
+        self.load_window_config()  # Load real values
+        self.event_handler()  # Launch the event handler
+
+    def event_handler(self):
+        """Initialize the window loop and handle events"""
         while True:
             event, values = self.window.read()
             if event == PySimpleGUI.WIN_CLOSED:
+                self.save_window_config()  # Store the window size to the config file
+                self.window.close()  # Close the window after saving the configuration
                 break
             if event == 'Add Note':
-                new_note_key = f'Note{len(self.notepad) + 1}'
-                self.add_note(new_note_key)
+                self.add_note()
                 # self.show_popup(f"Field {field_number} Value: {values[event]}")  # TODO
-        self.window.close()
-
 
     def build_layout(self) -> list:
         """Build the layout for the APP"""
@@ -70,7 +114,7 @@ class Settings:
         ]
         return layout
 
-    def add_note(self, key):
+    def add_note(self):
         # do something
         pass
 
@@ -114,7 +158,7 @@ def loader():
     print(f"{datetime.now()}: Load virtual Notepad.")
     notepad = Notepad()
     print(f"{datetime.now()}: Load GUIs.")
-    settings = Settings(notepad=notepad)
+    settings = GUI(notepad=notepad)
     print(f"{datetime.now()}: Load Keybinds.")
     keys = Keybinds(notepad=notepad, gui=settings)
     print(f"{datetime.now()}: Start endless loop and wait for commands.")
