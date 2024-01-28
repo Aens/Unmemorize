@@ -5,6 +5,7 @@ from pathlib import Path
 import configparser
 import PySimpleGUI
 import keyboard
+import time
 
 
 class Notepad:
@@ -44,8 +45,9 @@ class GUI:
         """Load window size from the config file"""
         try:
             config_values = PySimpleGUI.Window().Finalize().ReadLocation(self.config_file)
-            return (int(config_values[0][0]), int(config_values[0][1]))
-        except Exception:
+            return int(config_values[0][0]), int(config_values[0][1])
+        except Exception as e:
+            print(e)
             return self.DEFAULT_WINDOW_SIZE
 
     def load_window_config(self):
@@ -65,25 +67,25 @@ class GUI:
         config.read(self.config_file)
         if not config.has_section('Window'):
             config.add_section('Window')
-        print(self.window.size)
-        print(type(self.window.size))
-        config.set('Window', 'size', self.window.size)
-        config.set('Window', 'location', self.window.current_location())
+        config.set('Window', 'size', str(self.window.size))
+        config.set('Window', 'location', str(self.window.current_location()))
         with open(self.config_file, 'w') as configfile:
             config.write(configfile)
 
     def create_window(self):
         """Create the window"""
+        self.window = None
         # First reload the notepad
         self.notepad.reload_notes()
         # Load window size from the config file, set the layout and build the window
-        window_size = self.load_window_size()
         layout = self.build_layout()
         self.window = PySimpleGUI.Window(  # We get default values before loading real ones
-            "LazyMode Paster", layout, finalize=True, resizable=True, size=window_size,
-            return_keyboard_events=True, location=self.DEFAULT_WINDOW_POSITION, element_justification='left',
+            title="Unmemorize", layout=layout, finalize=True, resizable=True, return_keyboard_events=True,
+            element_justification='left',
+            size=self.DEFAULT_WINDOW_SIZE,
+            location=self.DEFAULT_WINDOW_POSITION,
             alpha_channel=self.DEFAULT_WINDOW_TRANSPARENCY)
-        self.load_window_config()  # Load real values
+        # self.load_window_config()  # Load real values TODO enable later
         self.event_handler()  # Launch the event handler
 
     def event_handler(self):
@@ -91,12 +93,14 @@ class GUI:
         while True:
             event, values = self.window.read()
             if event == PySimpleGUI.WIN_CLOSED:
+                print(self.window.size)
                 self.save_window_config()  # Store the window size to the config file
-                self.window.close()  # Close the window after saving the configuration
                 break
-            if event == 'Add Note':
+            elif event == 'Add Note':
                 self.add_note()
                 # self.show_popup(f"Field {field_number} Value: {values[event]}")  # TODO
+        # Close the window after saving the configuration
+        self.window.close()
 
     def build_layout(self) -> list:
         """Build the layout for the APP"""
@@ -162,7 +166,8 @@ def loader():
     print(f"{datetime.now()}: Load Keybinds.")
     keys = Keybinds(notepad=notepad, gui=settings)
     print(f"{datetime.now()}: Start endless loop and wait for commands.")
-    keyboard.wait("alt+q")
+    keys.open_settings()
+    # keyboard.wait("alt+q")  # TODO activa para continuar
     print(f"{datetime.now()}: Clean up and close this program.")
     keys.close_program()
 
