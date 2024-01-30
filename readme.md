@@ -24,7 +24,7 @@ deactivate
 
 # How to Run it
 * Either run the file: `run.bat`.
-* Or just while you are on the virtual environment, execute `python Main.py`
+* Or just while you are on the virtual environment, execute `python source\\Main.py`
 
 # Technologies
 This project utilizes the next technologies and libraries:
