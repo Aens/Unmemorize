@@ -107,22 +107,27 @@ class GUI(QtWidgets.QMainWindow):
             text_edit.leaveEvent = lambda event, name=key, obj=text_edit: self.save_note(name, obj)
 
             # Create buttons
+            button_save = QtWidgets.QPushButton("💾")
             button_delete = QtWidgets.QPushButton("❌")
             button_copy = QtWidgets.QPushButton("📝")
 
             # Set fixed size for buttons
+            button_save.setFixedSize(30, 30)
             button_copy.setFixedSize(30, 30)
             button_delete.setFixedSize(30, 30)
 
             # Connect buttons to functions
+            button_save.clicked.connect(lambda name=key, obj=text_edit: self.save_note(name, obj))
             button_delete.clicked.connect(lambda name=key, v=value: self.delete_note(name))
             button_copy.clicked.connect(lambda name=key, obj=text_edit: self.copy_note(name, obj))
 
+
             # Add buttons into the layout (element, row, col, IDK, spans this many columns)
             scroll_layout.addWidget(label, row, col, 1, 1)
-            scroll_layout.addWidget(button_copy, row, col + 1, 1, 1)
-            scroll_layout.addWidget(button_delete, row, col + 2, 1, 1)
-            scroll_layout.addWidget(text_edit, row + 1, col, 1, 3)
+            scroll_layout.addWidget(button_save, row, col + 1, 1, 1)
+            scroll_layout.addWidget(button_copy, row, col + 2, 1, 1)
+            scroll_layout.addWidget(button_delete, row, col + 3, 1, 1)
+            scroll_layout.addWidget(text_edit, row + 1, col, 1, 4)
 
             row += 2  # Increment by 2 to leave space for buttons
 
