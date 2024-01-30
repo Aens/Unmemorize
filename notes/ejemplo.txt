@@ -1,5 +1,3 @@
-Esta nota es de ejemplo
-y ademas
-tiene multiples lineas
-
-ejemplo
+This is an example note
+with multiline
+to check how it works
