@@ -8,65 +8,12 @@ from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import QSize, QPoint
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QInputDialog, QLineEdit
+from Notepad import Notepad
 
 
 __VERSION__ = "v0.4"
 __AUTHOR__ = "Alex"
-
-
-class Notepad:
-    """A virtual Notepad with all the notes stored"""
-
-    def __init__(self):
-        """Load fields from a text file"""
-        self.gui = None
-        self.notes = {}
-        self.folderpath = Path.cwd().joinpath("notes")
-        self.deleted_folderpath = Path.cwd().joinpath("old_notes")
-        self.reload_notes()
-
-    def add_gui_pointer(self, gui):
-        """Add a gui pointer just to call stuff from this class"""
-        self.gui = gui
-
-    def reload_notes(self):
-        """Clean the previous list. Crawl to get all the notes. Load them into the class"""
-        self.notes.clear()
-        # Load them from files
-        files = list(self.folderpath.glob("*.txt"))
-        for file in files:
-            title = file.stem
-            with open(file, encoding="UTF-8") as f:
-                content = f.read()
-                self.notes[title] = content
-
-    def add_note(self, new_name):
-        """Adds a new note"""
-        new_note_path = self.folderpath.joinpath(f"{new_name}.txt")
-        if new_note_path.exists():
-            self.gui.show_popup("Error, esa nota ya existe")
-            return
-        else:
-            try:
-                with open(new_note_path, 'w') as file:
-                    file.write("")  # Creating an empty note for now
-                self.gui.show_in_statusbar(f"Nota '{new_name}' creada con exito.")
-            except Exception as e:
-                print(f"Error creating note '{new_name}': {e}")
-
-    def delete_note(self, name: str) -> None:
-        """It doesn't delete notes, it just moves them to a different folder"""
-        source_filepath = self.folderpath.joinpath(f"{name}.txt")
-        destination_filepath = self.deleted_folderpath.joinpath(f"{name}.txt")
-        source_filepath.rename(destination_filepath)
-        self.gui.show_in_statusbar(f"Se ha movido el fichero: {source_filepath} --> {destination_filepath}")
-
-    def save_note(self, filename: str, value: str) -> None:
-        """Saves a note with this new values"""
-        new_note_path = self.folderpath.joinpath(f"{filename}.txt")
-        with open(new_note_path, 'w') as file:
-            file.write(value)  # Overwriting the content of that note
-        self.gui.show_in_statusbar(f"Nota '{filename}' guardada con exito.")
+RESOURCES = Path.cwd().joinpath("resources")
 
 
 class GUI(QtWidgets.QMainWindow):
@@ -83,7 +30,7 @@ class GUI(QtWidgets.QMainWindow):
         self.DEFAULT_WINDOW_POSITION = QPoint(200, 200)
         self.DEFAULT_WINDOW_TRANSPARENCY = 0.8
         self.load_window_config()
-        self.setWindowIcon(QIcon(str(Path.cwd().joinpath("MainIcon.png"))))
+        self.setWindowIcon(QIcon(str(RESOURCES.joinpath("MainIcon.png"))))
         self.setWindowTitle(f"Unmemorize {__VERSION__} by {__AUTHOR__}")
         # Add a status bar
         self.statusBar = self.statusBar()
@@ -101,7 +48,7 @@ class GUI(QtWidgets.QMainWindow):
         # Use a QTimer to revert the background color after a few seconds
         timer = QtCore.QTimer(self)
         timer.timeout.connect(lambda: self.statusBar.setStyleSheet(""))
-        timer.start(3000)  # 3000 milliseconds (3 seconds)
+        timer.start(1000)  # 1000 milliseconds (3 seconds)
 
     def load_window_config(self):
         """Self-explanatory. It stores the data from a INI file"""
@@ -152,9 +99,13 @@ class GUI(QtWidgets.QMainWindow):
         for index, (key, value) in enumerate(self.notepad.notes.items()):
             label = QtWidgets.QLabel(f"{key}:")
             label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
+
+            # Create TextEdits
             text_edit = QtWidgets.QTextEdit()
             text_edit.setPlainText(value)
             text_edit.setReadOnly(False)
+            # Connect the leaveEvent signal to the save_note method
+            text_edit.leaveEvent = lambda event, name=key, obj=text_edit: self.save_note(name, obj)
 
             # Create buttons
             button_edit = QtWidgets.QPushButton("💾")
