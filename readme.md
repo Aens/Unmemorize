@@ -32,4 +32,4 @@ This project utilizes the next technologies and libraries:
 * PySide6 6.6.1 (Bindings for Python of the C++ Qt framework: https://www.qt.io/qt-for-python)
 
 # Result
-![Image](https://github.com/Aens/Unmemorize/blob/master/obsolete/preview.jpg?raw=true)
+![Image](https://github.com/Aens/Unmemorize/blob/master/resources/preview.jpg?raw=true)
