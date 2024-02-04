@@ -1,0 +1,363 @@
+/* File last edited on 2024-02-04 18:31:38.596430 */
+
+/* NOTES */
+/* Add a dot to cancel styling promoted subclasses of that item. Example: .QLabel instead of QLabel
+ Add a # to style an specific object. Example: QTabWidget#nombre
+ Add a space to style all childs of another type. Example: QTabWidget QTabBar
+ Add a > to style a direct child of another type. Example: QTabWidget#nombre > QTabBar
+ DOCUMENTATION: https://doc.qt.io/qt-5/stylesheet-syntax.html#selector-types*/
+
+/* this section is for future reference, we don't use QDockWidgets anymore
+ QDockWidget                        {background-color: #36393F;}
+ QDockWidget::title                 {background-color: #202225;color: rgb(250, 1, 1);text-align: center;}
+ QDockWidget::close-button,         QDockWidget::float-button         {background-color: #202225;border: 1px solid #202225;}
+ QDockWidget::close-button:hover,   QDockWidget::float-button:hover   {background-color: #36393F;border: 1px solid #36393F;}
+ QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {padding: 1px -1px -1px 1px;}
+ QMdiArea {background-color: #36393F;color: #000000;} */
+
+/* QMainWindow section */
+QMainWindow {
+    background-color: #36393F;
+    color: #000000;}
+
+QMainWindow::separator {
+    background-color: #202225;}
+
+QStatusBar QLabel#statusbarPermLabel {
+    background-color: #BEBEBE;
+    color: #000000;
+    border: 1px solid #000000;}
+
+/* QDialog section */
+QDialog {
+    background-color: #36393F;
+    color: #000000;}
+
+/* QMenuBar section*/
+QMenuBar {
+    background-color: transparent;
+    font: bold 10pt "Futura Md BT";}
+
+QMenuBar::item {
+    background-color: #202225;
+    color: #969696;}
+
+QMenuBar::item:selected {
+    background-color: #36393F;}
+
+QMenuBar::item:pressed {
+    background-color: #36393F;}
+
+/* QMenu section*/
+QMenu {
+    background-color: #36393F;}
+
+QMenu::item {
+    background-color: #202225;
+    color: #969696;}
+
+QMenu::item:selected {
+    background-color: #36393F;}
+
+QMenu::item:pressed {
+    background-color: #36393F;}
+
+QMenu::tearoff {
+    background-color: #BEBEBE;
+    border: 1px solid #202225;
+    border-bottom: 0px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    padding: 2px;
+    margin-right: 2px;}
+
+QMenu::separator {
+    background-color: #36393F;
+    margin-right: 1px;}
+
+QMenu::indicator {
+    background: rgb(250, 1, 1);
+    color: rgb(250, 1, 1);}
+
+/* QTabWidget and QTabBar Section (This is the bar for Tabs but also DockWidgets)
+ https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtabwidget-and-qtabbar */
+QTabWidget::pane {
+    background-color:#36393F;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border: 2px solid #0A0A0A;
+    padding: 2px;}
+
+QTabBar {
+    background-color: #36393F;
+    font: bold 10pt "Futura Md BT";}
+
+QTabBar::tab {
+    background-color: #36393F;
+    color: #000000;
+    text-align: center;
+    border: 3px solid #202225;
+    padding-left: 5px;
+    padding-right: 5px;}
+
+QTabBar::tab:selected {
+    background-color: #BEBEBE;
+    color: #000000;}
+
+QTabBar::tab:!selected {
+    background-color: #202225;
+    color: #969696;}
+
+QTabBar::tab:hover {
+    background-color: #737373; /* Put this after selected/not selected or it won't work */
+    color: #000000;}
+
+/* QTabWidget for main window
+ Make sure none of this affects the others QTabs */
+QTabWidget#tabContainer > QTabBar::tab {
+    background-color: #36393F;
+    color: #000000;
+    text-align: center;
+    border: 3px solid #202225;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-left: 5;
+    margin-right: 5;}
+
+QTabWidget#tabContainer > QTabBar {
+    background-color: transparent;} /* This is the space between buttons */
+
+QTabWidget#tabContainer > QTabBar::tab:selected {
+    background-color: #BEBEBE;
+    color: #000000;
+    border: 3px solid #202225;}
+
+QTabWidget#tabContainer > QTabBar::tab:!selected {
+    background-color: #202225;
+    color: #969696;
+    border: 3px solid #202225;}
+
+QTabWidget#tabContainer > QTabBar::tab:hover { /* Put this after selected/not selected or it won't work */
+    background-color: #737373;
+    color: #000000;
+    border: 3px solid #202225;}
+
+QTabWidget#tabContainer::pane {
+    background-color: transparent;
+    border: 0px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 2px;}
+
+/* ProgressBar section */
+QProgressBar {
+    background-color: #5A5F64;
+    border-radius: 5px;text-align: center;}
+
+QProgressBar::chunk {
+    background-color: #5A5F64;
+    width: 20px;}
+
+/* QGroupBox section */
+QGroupBox {
+    background-color: #36393F;
+    border: 2px solid #0A0A0A;
+    border-radius: 5px;
+    margin-top: 5px;}
+
+QGroupBox::title {
+    background-color: #36393F;
+    color: #818181;
+    subcontrol-origin: margin;
+    subcontrol-position: top center;
+    padding: 0 3px;
+    border: 2px solid #0A0A0A;}
+
+/* QLineEdit section */
+.QLineEdit {
+    background-color: #BEBEBE;
+    color: #000000;
+    border: 1px solid #000000;}
+
+.QLineEdit[readOnly="true"] {background-color: #737373;}
+
+/* QComboBox section */
+QComboBox {
+    background-color: #BEBEBE;
+    color: #000000;
+    margin-right: 0px;
+    padding-right: 0px;
+    selection-background-color: #505050;
+    selection-color: #000000;}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;}
+
+QComboBox QAbstractItemView {
+    background-color: #BEBEBE;
+    color: #000000;
+    selection-background-color: #505050;
+    selection-color: #000000;}
+
+/* QLabel section */
+.QLabel {
+    background-color: transparent;
+    color: #C8C8C8;}
+
+/* QLabel section */
+QTextEdit, QPlainTextEdit, QSpinBox {
+    background-color: #BEBEBE;
+    color: #000000;
+    border: 1px solid #000000;
+    }
+
+/* Buttons section */
+QPushButton {
+    background-color: #202225;
+    color: #969696;}
+
+QPushButton:hover {
+    background-color: #36393F;
+    color: #000000;}
+
+QDialogButtonBox {
+    background-color: #202225;
+    color: #969696;}
+
+QDialogButtonBox:hover {
+    background-color: #36393F;
+    color: #000000;}
+
+/* ToolTip section */
+/* NOTES: Background needs border to work */
+QToolTip {
+    background-color: #36393F;
+    color: #969696;
+    border: 2px solid black;}
+
+/* QTreeWidget section */
+QTreeWidget {
+    background-color: #D2D2E1;
+    alternate-background-color: yellow;}
+
+/* QTableWidget, QTableView, InteractiveTableView section */
+QTableView {
+    alternate-background-color: #505050;
+    background-color: #646464;
+    color: #000000;
+    border: 1px solid #000000;}
+
+QTableCornerButton::section {
+    background-color: #36393F;}
+
+QHeaderView::section {
+    background-color: #36393F;
+    color: #C8C8C8;
+    font: bold 10pt "Futura Md BT";}
+
+QTableView::item:selected {
+    background-color: #BEBEBE;
+    color: #000000;}
+
+
+
+
+
+
+/* QScrollBar section - VERTICAL (de arriba a abajo) */
+QScrollBar:vertical {
+    background-color: #646464;
+    border: 0px solid #000000;
+    margin: 17px 0 17px 0;}
+
+QScrollBar::handle:vertical { /* This is the bar to move it */
+    background-color: #36393F;
+    border: 1px solid #000000;
+    min-height: 20px;}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #202225;
+    border: 1px solid #000000;}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical { /* This is the space of the bar where it can still scroll */
+     background: #646464;}
+
+QScrollBar::add-line:vertical { /* This is the bottom square where arrow goes */
+    background: #36393F;
+    background-image: url("Resources/Images/Qss/arrow-down.png");
+    border: 1px solid #000000;
+    height: 17px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;}
+
+QScrollBar::sub-line:vertical { /* This is the top square where arrow goes */
+    background: #36393F;
+    background-image: url("Resources/Images/Qss/arrow-up.png");
+    border: 1px solid #000000;
+    height: 17px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;}
+
+QScrollBar::sub-line:vertical:hover,
+QScrollBar::sub-line:horizontal:hover,
+QScrollBar::add-line:vertical:hover,
+QScrollBar::add-line:horizontal:hover {
+    background-color: #202225;}
+
+QScrollBar::down-arrow:vertical,
+QScrollBar::up-arrow:vertical {
+    background: none;}
+
+
+/* QScrollBar section - HORIZONTAL (de izq a der) */
+QScrollBar:horizontal {
+    background-color: #646464;
+    border: 0px solid #000000;
+    margin: 0 17px 0 17px;}
+
+QScrollBar::handle:horizontal { /* This is the bar to move it */
+    background-color: #36393F;
+    border: 1px solid #000000;
+    min-width: 20px;}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #202225;
+    border: 1px solid #000000;}
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal { /* This is the space of the bar where it can still scroll */
+     background: #646464;}
+
+QScrollBar::add-line:horizontal { /* This is the bottom square where arrow goes */
+    background: #36393F;
+    background-image: url("Resources/Images/Qss/arrow-right.png");
+    border: 1px solid #000000;
+    width: 17px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;}
+
+QScrollBar::sub-line:horizontal { /* This is the top square where arrow goes */
+    background: #36393F;
+    background-image: url("Resources/Images/Qss/arrow-left.png");
+    border: 1px solid #000000;
+    width: 17px;
+    subcontrol-position: left;
+    subcontrol-origin: margin;}
+
+QScrollBar::left-arrow:horizontal,
+QScrollBar::right-arrow:horizontal { /* This are the controls where arrows go */
+    background: none;}
+
+/* QCalendar section */
+QCalendarWidget {
+    background-color: #7D7D7D;
+    color: #000000;}
+
+/*Special tab for the notes tab, the container where notes and buttons are*/
+QTabWidget QWidget QScrollArea QWidget[notesContainer="true"] {
+    background-color: #36393F;
+}
