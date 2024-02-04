@@ -7,7 +7,7 @@ from pathlib import Path
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import QSize, QPoint
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication, QInputDialog, QLineEdit
+from PySide6.QtWidgets import QApplication, QInputDialog, QLineEdit, QTabWidget
 
 
 __VERSION__ = "v0.4"
@@ -31,14 +31,20 @@ class GUI(QtWidgets.QMainWindow):
         self.load_window_config()
         self.setWindowIcon(QIcon(str(RESOURCES.joinpath("MainIcon.png"))))
         self.setWindowTitle(f"Unmemorize {__VERSION__} by {__AUTHOR__}")
-        # Add a status bar
         self.statusBar = self.statusBar()
         # Install an event filter on the main window
         self.installEventFilter(self)
+        # Create the tabs
+        self.tab_widget = QTabWidget(self)
+        self.notes_tab = QtWidgets.QWidget(self)
+        self.private_notes_tab = QtWidgets.QWidget(self)
+        self.settings_tab = QtWidgets.QWidget(self)
+        self.create_notes_tab()
+        self.create_private_notes_tab()
+        self.create_settings_tab()
+        self.setCentralWidget(self.tab_widget)
         # Load the notes in memory
         self.notepad.reload_notes()
-        # Finally set the layour
-        self.create_layout()
 
     def show_in_statusbar(self, message: str):
         """Show something in the statusbar for a little bit"""
@@ -71,12 +77,34 @@ class GUI(QtWidgets.QMainWindow):
                 self.save_window_config()  # Store the window size to the config file
         return super().eventFilter(watched, event)
 
+##########
+# LAYOUT #
+##########
+
+    def create_notes_tab(self):
+        """Create the main tab and set its layout"""
+        self.tab_widget.addTab(self.notes_tab, "Notas")
+        self.create_layout()
+
+    def create_private_notes_tab(self):
+        """Create the private notes tab and set its layout"""
+        self.tab_widget.addTab(self.private_notes_tab, "Notas Privadas")
+
+        private_notes_layout = QtWidgets.QVBoxLayout(self.private_notes_tab)
+        # Add your private notes widgets and layout here
+
+    def create_settings_tab(self):
+        """Create the settings tab and set its layout"""
+        self.tab_widget.addTab(self.settings_tab, "Opciones")
+
+        settings_layout = QtWidgets.QVBoxLayout(self.settings_tab)
+        # Add your settings widgets and layout here
+
+
+
     def create_layout(self):
         """Creates the layout and sets it"""
-        central_widget = QtWidgets.QWidget(self)
-        self.setCentralWidget(central_widget)
-
-        main_layout = QtWidgets.QGridLayout(central_widget)
+        main_layout = QtWidgets.QGridLayout(self.notes_tab)
 
         add_note_button = QtWidgets.QPushButton('Añadir otra nota')
         add_note_button.clicked.connect(self.add_note)
