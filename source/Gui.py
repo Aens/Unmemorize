@@ -1,7 +1,5 @@
 # coding=utf-8
 """Code by Aens"""
-from datetime import datetime
-import sys
 import pyperclip
 from pathlib import Path
 from PySide6 import QtWidgets, QtCore
@@ -10,7 +8,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QInputDialog, QLineEdit, QTabWidget
 
 
-__VERSION__ = "v0.4"
+__VERSION__ = "v0.5"
 __AUTHOR__ = "Alex"
 RESOURCES = Path.cwd().joinpath("resources")
 SETTINGS = 'program_settings.ini'
@@ -31,6 +29,7 @@ class GUI(QtWidgets.QMainWindow):
         self.statusBar = self.statusBar()
         # Settings
         self.AUTOSAVE = False
+        self.THEME = 0
         self.load_program_config()  # Override default settings with the ones from file
         # Install an event filter on the main window
         self.installEventFilter(self)
@@ -66,12 +65,15 @@ class GUI(QtWidgets.QMainWindow):
         self.resize(self.settings.value("Window/size", QSize(800, 600)))
         self.move(self.settings.value("Window/location", QPoint(200, 200)))
         self.AUTOSAVE = True if self.settings.value("Settings/autosave_notes", "false") == "true" else False
+        self.THEME = self.settings.value("Settings/theme", 0)
+        self.change_stylesheet(self.THEME)
 
     def save_program_config(self) -> None:
         """Self-explanatory. It gets the data from a INI file"""
-        self.settings.setValue("Settings/autosave_notes", self.AUTOSAVE)
         self.settings.setValue("Window/size", self.size())
         self.settings.setValue("Window/location", self.pos())
+        self.settings.setValue("Settings/autosave_notes", self.AUTOSAVE)
+        self.settings.setValue("Settings/theme", self.THEME)
 
     def eventFilter(self, watched, event):
         """Event filter to handle events on the main window"""
@@ -91,19 +93,6 @@ class GUI(QtWidgets.QMainWindow):
         """Create the private notes tab and set its layout"""
         private_notes_layout = QtWidgets.QVBoxLayout(self.private_notes_tab)
 
-    def create_settings_tab(self) -> None:
-        """Create the settings tab and set its layout"""
-        settings_layout = QtWidgets.QVBoxLayout(self.settings_tab)
-        settings_layout.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)  # Align to top-left
-        # Create checkboxes
-        auto_save_checkbox = QtWidgets.QCheckBox("Guardar Notas Automáticamente")
-        auto_save_checkbox.setChecked(self.AUTOSAVE)  # Set the initial state
-        # Connections
-        auto_save_checkbox.stateChanged.connect(self.handle_auto_save_checkbox)
-
-        # Add the checkbox to the layout
-        settings_layout.addWidget(auto_save_checkbox)
-
     def create_notes_tab(self) -> None:
         """Creates the layout and sets it"""
         main_layout = QtWidgets.QGridLayout(self.notes_tab)
@@ -121,10 +110,10 @@ class GUI(QtWidgets.QMainWindow):
         scroll_area = QtWidgets.QScrollArea(self)
         scroll_widget = QtWidgets.QWidget(scroll_area)
         scroll_layout = QtWidgets.QGridLayout(scroll_widget)
+        scroll_widget.setProperty("notesContainer", True)
 
         row = 0
         col = 0
-
         for index, (key, value) in enumerate(self.notepad.notes.items()):
             label = QtWidgets.QLabel(f"{key}:")
             label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
@@ -170,13 +159,35 @@ class GUI(QtWidgets.QMainWindow):
         scroll_area.setWidget(scroll_widget)
         scroll_area.setWidgetResizable(True)
 
-        # Scroll area in the second row, spanning two columns
-        # Spanning three columns to avoid bugs
         main_layout.addWidget(scroll_area, 1, 0, 1, 3)
+
 
 ############
 # Settings #
 ############
+
+    def create_settings_tab(self) -> None:
+        """Create the settings tab and set its layout"""
+        # 1 - Stylesheets
+        stylesheet_label = QtWidgets.QLabel("Estilo del programa:")
+        stylesheet_combobox = QtWidgets.QComboBox()
+        stylesheet_combobox.addItem("Gris")
+        stylesheet_combobox.addItem("Oscuro")
+        stylesheet_combobox.addItem("Azul")
+        stylesheet_combobox.addItem("Verde")
+        # 2 - AutoSave
+        auto_save_checkbox = QtWidgets.QCheckBox("Guardar Notas Automáticamente")
+        auto_save_checkbox.setChecked(self.AUTOSAVE)  # Set the initial state
+        # Set up a grid layout for the label and combobox
+        settings_layout = QtWidgets.QGridLayout(self.settings_tab)
+        settings_layout.addWidget(stylesheet_label, 0, 0)  # Label in the first row, first column
+        settings_layout.addWidget(stylesheet_combobox, 0, 1)  # Combobox in the first row, second column
+        settings_layout.addWidget(auto_save_checkbox, 1, 0, 1, 2)  # Combobox in the first row, second column
+        settings_layout.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)  # Align to top-left
+
+        # Connections/Events
+        stylesheet_combobox.currentIndexChanged.connect(self.change_stylesheet)
+        auto_save_checkbox.stateChanged.connect(self.handle_auto_save_checkbox)
 
     def handle_auto_save_checkbox(self, state: int) -> None:
         """Disable or enable the auto-saving
@@ -185,6 +196,24 @@ class GUI(QtWidgets.QMainWindow):
             self.AUTOSAVE = True
         else:
             self.AUTOSAVE = False
+
+    def change_stylesheet(self, style: int) -> None:
+        """Change the application stylesheet"""
+        style = str(style)
+        mapped_options = {
+            "0": "resources/theme_gray.QSS",
+            "1": "resources/theme_dark.QSS",
+            "2": "resources/theme_light.QSS",
+            "3": "resources/theme_green.QSS"
+        }
+        with open(mapped_options[style], "r") as file:
+            stylesheet = file.read()
+        self.THEME = style
+        self.app.setStyleSheet(stylesheet)
+
+    #########
+    # Notes #
+    #########
 
     def reload_notes_layout(self) -> None:
         """Reload the layout by destroying it and calling to recreate it"""
