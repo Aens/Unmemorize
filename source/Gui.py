@@ -65,7 +65,7 @@ class GUI(QtWidgets.QMainWindow):
         # Try to find the settings or just load the default values
         self.resize(self.settings.value("Window/size", QSize(800, 600)))
         self.move(self.settings.value("Window/location", QPoint(200, 200)))
-        self.AUTOSAVE = self.settings.value("Settings/autosave_notes", False)
+        self.AUTOSAVE = True if self.settings.value("Settings/autosave_notes", "false") == "true" else False
 
     def save_program_config(self) -> None:
         """Self-explanatory. It gets the data from a INI file"""
