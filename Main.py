@@ -22,12 +22,13 @@ def make_sure_folder_exists(fullpath: Path):
 def loader():
     """Loader"""
     make_sure_folder_exists(MAIN_FOLDER.joinpath("notes"))
-    make_sure_folder_exists(MAIN_FOLDER.joinpath("old_notes"))
-    print(f"{datetime.now()}: Load virtual Notepad.")
+    print(f"{datetime.now()}: Loading virtual Notepad.")
     notepad = Notepad.Notepad()
+    # notepad = Notepad.SQLNotepad()
     print(f"{datetime.now()}: Load GUIs.")
     app = QApplication(sys.argv)
     main_window = Gui.GUI(app=app, notepad=notepad)
+    print(f"{datetime.now()}: Running the App.")
     # Run the application's event loop
     main_window.show()
     sys.exit(app.exec())

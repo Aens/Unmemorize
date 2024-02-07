@@ -248,13 +248,14 @@ class GUI(QtWidgets.QMainWindow):
 
     def save_note(self, event: str, name: str, obj: QtWidgets.QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
-        print(f"{datetime.datetime.now()} {event}")
         # Capture Events to make sure we only save on specific conditions
         if event == "OnLeave":
             if not self.AUTOSAVE:
                 return  # DON'T save on Leave Events if autosave is not ON.
         elif event == "OnButtonSave":
             pass
+        # Check if the note for what we triggered the event requires an actual save or nothing changed
+
         # If we made it this far, okay, go ahead and save the note
         self.notepad.save_note(filename=name, value=obj.toPlainText())
         self.notepad.reload_notes()
