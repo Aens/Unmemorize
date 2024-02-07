@@ -36,11 +36,13 @@ class GUI(QtWidgets.QMainWindow):
         # Create the tabs
         self.tab_widget = QTabWidget(self)
         self.notes_tab = QtWidgets.QWidget(self)
-        self.tab_widget.addTab(self.notes_tab, "Notas")
+        self.notes_scroll_layout = None  # <-- Pointer so we can reload it later
         self.private_notes_tab = QtWidgets.QWidget(self)
-        self.tab_widget.addTab(self.private_notes_tab, "Notas Privadas")
         self.settings_tab = QtWidgets.QWidget(self)
+        self.tab_widget.addTab(self.notes_tab, "Notas")
+        self.tab_widget.addTab(self.private_notes_tab, "Notas Privadas")
         self.tab_widget.addTab(self.settings_tab, "Opciones")
+
         # Initialize the content of those tabs
         self.create_notes_tab()
         self.create_private_notes_tab()
@@ -97,6 +99,8 @@ class GUI(QtWidgets.QMainWindow):
         """Creates the layout and sets it"""
         main_layout = QtWidgets.QGridLayout(self.notes_tab)
 
+        # TOP BUTTONS
+        # Add buttons and add them to the layout
         add_note_button = QtWidgets.QPushButton('Añadir otra nota')
         add_note_button.clicked.connect(self.add_note)
         deleted_notes_label = QtWidgets.QLabel(
@@ -104,14 +108,24 @@ class GUI(QtWidgets.QMainWindow):
             "por si acaso borras una sin querer.")
         deleted_notes_label.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
 
-        main_layout.addWidget(add_note_button, 0, 0, 1, 1)  # Button in the first row, first column
-        main_layout.addWidget(deleted_notes_label, 0, 1, 1, 2)  # Label in the first row, spanning two columns
-
+        # NOTES
         scroll_area = QtWidgets.QScrollArea(self)
         scroll_widget = QtWidgets.QWidget(scroll_area)
-        scroll_layout = QtWidgets.QGridLayout(scroll_widget)
+        self.notes_scroll_layout = QtWidgets.QGridLayout(scroll_widget)  # <-- pointer to re-populate it
         scroll_widget.setProperty("notesContainer", True)
+        # Build and populate the layout with arbitrary notes
+        self.populate_notes_layout(self.notes_scroll_layout)
 
+        # Add all elements to the current layout
+        main_layout.addWidget(add_note_button, 0, 0, 1, 1)  # Add button in the first row, first column
+        main_layout.addWidget(deleted_notes_label, 0, 1, 1, 2)  # Add label in the first row, spanning two columns
+        scroll_widget.setLayout(self.notes_scroll_layout)
+        scroll_area.setWidget(scroll_widget)
+        scroll_area.setWidgetResizable(True)
+        main_layout.addWidget(scroll_area, 1, 0, 1, 3)
+
+    def populate_notes_layout(self, scroll_layout: QtWidgets.QGridLayout) -> None:
+        """Populates the notes layout"""
         row = 0
         col = 0
         for index, (key, value) in enumerate(self.notepad.notes.items()):
@@ -140,7 +154,6 @@ class GUI(QtWidgets.QMainWindow):
             button_delete.clicked.connect(lambda name=key, v=value: self.delete_note(name))
             button_copy.clicked.connect(lambda name=key, obj=text_edit: self.copy_note(name, obj))
 
-
             # Add buttons into the layout (element, row, col, IDK, spans this many columns)
             scroll_layout.addWidget(label, row, col, 1, 1)
             scroll_layout.addWidget(button_save, row, col + 1, 1, 1)
@@ -149,18 +162,9 @@ class GUI(QtWidgets.QMainWindow):
             scroll_layout.addWidget(text_edit, row + 1, col, 1, 4)
 
             row += 2  # Increment by 2 to leave space for buttons
-
-            # Check if we need to start a new column
-            if row > 4:
+            if row > 4:  # Check if we need to start a new column
                 row = 0
                 col += 4  # Increment by 4 to leave space for buttons
-
-        scroll_widget.setLayout(scroll_layout)
-        scroll_area.setWidget(scroll_widget)
-        scroll_area.setWidgetResizable(True)
-
-        main_layout.addWidget(scroll_area, 1, 0, 1, 3)
-
 
 ############
 # Settings #
@@ -217,17 +221,13 @@ class GUI(QtWidgets.QMainWindow):
 
     def reload_notes_layout(self) -> None:
         """Reload the layout by destroying it and calling to recreate it"""
-        # Clear existing layout
-        central_widget = self.centralWidget()
-        if central_widget is not None:
-            layout = central_widget.layout()
-            if layout is not None:
-                while layout.count():
-                    item = layout.takeAt(0)
-                    if item.widget():
-                        item.widget().deleteLater()
-        # Rebuild the layout
-        self.create_notes_tab()
+        # Delete existing layout if it does exist
+        for i in reversed(range(self.notes_scroll_layout.count())):
+            item = self.notes_scroll_layout.itemAt(i)
+            if item.widget():
+                item.widget().setParent(None)
+        # # Rebuild the layout
+        self.populate_notes_layout(self.notes_scroll_layout)
 
     def copy_note(self, name: str, obj: str) -> None:
         """Copy the note into notepad"""
@@ -242,8 +242,10 @@ class GUI(QtWidgets.QMainWindow):
 
     def save_note(self, event: str, name: str, obj: QtWidgets.QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
-        if not self.AUTOSAVE and event == "OnLeave":
-            return
+        if event == "OnLeave":
+            if not self.AUTOSAVE:
+                return
+        # Save the data
         self.notepad.save_note(filename=name, value=obj.toPlainText())
         self.notepad.reload_notes()
         self.reload_notes_layout()

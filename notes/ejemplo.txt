@@ -1,3 +1,0 @@
-This is an example note
-with multiline
-to check how it works
