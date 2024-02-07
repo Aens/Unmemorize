@@ -37,7 +37,7 @@ class Notepad:
             return
         else:
             try:
-                with open(new_note_path, 'w') as file:
+                with open(new_note_path, 'w', encoding="UTF-8") as file:
                     file.write("")  # Creating an empty note for now
                 self.gui.show_in_statusbar(f"Nota '{new_name}' creada con exito.")
             except Exception as e:
@@ -53,7 +53,7 @@ class Notepad:
     def save_note(self, filename: str, value: str) -> None:
         """Saves a note with this new values"""
         new_note_path = self.folderpath.joinpath(f"{filename}.txt")
-        with open(new_note_path, 'w') as file:
+        with open(new_note_path, 'w', encoding="UTF-8") as file:
             file.write(value)  # Overwriting the content of that note
         self.gui.show_in_statusbar(f"Nota '{filename}' guardada con exito.")
 

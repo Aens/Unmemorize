@@ -213,7 +213,7 @@ class GUI(QtWidgets.QMainWindow):
             "2": "resources/theme_light.QSS",
             "3": "resources/theme_green.QSS"
         }
-        with open(mapped_options[style], "r") as file:
+        with open(mapped_options[style], "r", encoding="UTF-8") as file:
             stylesheet = file.read()
         self.THEME = style
         self.app.setStyleSheet(stylesheet)
