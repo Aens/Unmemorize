@@ -75,14 +75,10 @@ class SQLNotepad:
 
     def create_tables(self):
         """Create all the needed tables for the program to work with"""
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS notes (
-                title TEXT PRIMARY KEY,
-                content TEXT)''')
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS private_notes (
-                title TEXT PRIMARY KEY,
-                content TEXT)''')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS notes (title TEXT PRIMARY KEY, content TEXT)''')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS notes_deleted (title TEXT PRIMARY KEY, content TEXT)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS private_notes (title TEXT PRIMARY KEY, content TEXT)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS private_notes_deleted (title TEXT PRIMARY KEY, content TEXT)')
         self.connection.commit()
 
     def add_gui_pointer(self, gui):
@@ -115,8 +111,13 @@ class SQLNotepad:
     def delete_note(self, name: str) -> None:
         """It doesn't delete notes, it just moves them to a different folder"""
         if name in self.notes:
-            try:  # TODO THIS
+            try:
                 # Move the note to a different folder (not implemented in this example)
+                self.cursor.execute(f"INSERT INTO notes_deleted (title, content)"
+                                    "SELECT title, content FROM notes "
+                                    "WHERE title = ?", (name,))
+                # Delete the note
+                self.cursor.execute(f"DELETE FROM notes WHERE title = ?", (name,))
                 self.gui.show_in_statusbar(f"Se ha movido el fichero: {name}")
             except Exception as e:
                 print(f"{datetime.now()} Error moving note '{name}': {e}")

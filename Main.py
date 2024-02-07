@@ -23,7 +23,7 @@ def loader():
     """Loader"""
     make_sure_folder_exists(MAIN_FOLDER.joinpath("notes"))
     print(f"{datetime.now()}: Loading virtual Notepad.")
-    notepad = Notepad.Notepad()
+    notepad = Notepad.SQLNotepad()
     print(f"{datetime.now()}: Load GUIs.")
     app = QApplication(sys.argv)
     main_window = Gui.GUI(app=app, notepad=notepad)

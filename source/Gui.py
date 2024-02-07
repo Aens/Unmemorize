@@ -1,8 +1,6 @@
 # coding=utf-8
 """Code by Aens"""
-import datetime
-import time
-
+from datetime import datetime
 import pyperclip
 from pathlib import Path
 from PySide6 import QtWidgets, QtCore
@@ -56,12 +54,8 @@ class GUI(QtWidgets.QMainWindow):
 
     def show_in_statusbar(self, message: str) -> None:
         """Show something in the statusbar for a little bit"""
-        self.statusBar.setStyleSheet("background-color: lightgreen;")
-        self.statusBar.showMessage(message)
-        # Use a QTimer to revert the background color after a few seconds
-        timer = QtCore.QTimer(self)
-        timer.timeout.connect(lambda: self.statusBar.setStyleSheet(""))
-        timer.start(1000)  # 1000 milliseconds (3 seconds)
+        # self.statusBar.setStyleSheet("background-color: darkgrey;")
+        self.statusBar.showMessage(f"{datetime.now().strftime('%H:%M:%S')} - {message}")
 
     def load_program_config(self) -> None:
         """Self-explanatory. It stores the data from a INI file"""
@@ -255,6 +249,7 @@ class GUI(QtWidgets.QMainWindow):
         elif event == "OnButtonSave":
             pass
         # Check if the note for what we triggered the event requires an actual save or nothing changed
+        # This is a huge efficiency trick, we don't want thosands of unnecesary reloads on the GUI
         value = obj.toPlainText()
         if value == self.notepad.notes[name]:
             return   # DON'T save as it's not needed
