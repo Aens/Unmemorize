@@ -249,7 +249,6 @@ class GUI(QtWidgets.QMainWindow):
             if not self.AUTOSAVE:
                 return
             else:
-                print(event)
                 # TODO save with OnLeave event should be fixed here
                 pass
         # Save the data
