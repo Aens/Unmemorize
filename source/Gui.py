@@ -1,9 +1,11 @@
 # coding=utf-8
 """Code by Aens"""
+import datetime
+
 import pyperclip
 from pathlib import Path
 from PySide6 import QtWidgets, QtCore
-from PySide6.QtCore import QSize, QPoint
+from PySide6.QtCore import QSize, QPoint, QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QInputDialog, QLineEdit, QTabWidget
 
@@ -137,7 +139,8 @@ class GUI(QtWidgets.QMainWindow):
             text_edit.setPlainText(value)
             text_edit.setReadOnly(False)
             # Connect the leaveEvent signal to the save_note method
-            text_edit.focusOutEvent = lambda event, name=key, obj=text_edit: self.save_note("OnLeave", name, obj)
+            text_edit.focusOutEvent = lambda event: self.save_note("OnLeave", key, text_edit)
+            # text_edit.keyReleaseEvent = lambda event, name=key, obj=text_edit: self.save_note("OnLeave", name, obj)
 
             # Create buttons
             button_save = QtWidgets.QPushButton("💾")
@@ -244,13 +247,10 @@ class GUI(QtWidgets.QMainWindow):
 
     def save_note(self, event: str, name: str, obj: QtWidgets.QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
-        print(event)
+        print(f"{datetime.datetime.now()} {event}")
         if event == "OnLeave":
             if not self.AUTOSAVE:
                 return
-            else:
-                # TODO save with OnLeave event should be fixed here
-                pass
         # Save the data
         self.notepad.save_note(filename=name, value=obj.toPlainText())
         self.notepad.reload_notes()
