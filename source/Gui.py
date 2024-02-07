@@ -9,7 +9,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QInputDialog, QLineEdit, QTabWidget
 
 
-__VERSION__ = "v0.5"
+__VERSION__ = "v0.6"
 __AUTHOR__ = "Alex"
 RESOURCES = Path.cwd().joinpath("resources")
 SETTINGS = 'program_settings.ini'
@@ -101,8 +101,8 @@ class GUI(QtWidgets.QMainWindow):
         add_note_button = QtWidgets.QPushButton('Añadir otra nota')
         add_note_button.clicked.connect(self.add_note)
         deleted_notes_label = QtWidgets.QLabel(
-            "Las notas borradas no se 'borran', se almacenan en la carpeta old_notes "
-            "por si acaso borras una sin querer.")
+            "Las notas borradas no se 'borran', se quedan guardadas en la base de datos "
+            "por si acaso borras una importante sin querer.")
         deleted_notes_label.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
 
         # NOTES
@@ -232,7 +232,7 @@ class GUI(QtWidgets.QMainWindow):
     def copy_note(self, name: str, obj: str) -> None:
         """Copy the note into notepad"""
         pyperclip.copy(obj.toPlainText())
-        self.show_in_statusbar(f"Nota {name} copiada al portapapeles.")
+        self.show_in_statusbar(f"Nota '{name}' copiada al portapapeles.")
 
     def delete_note(self, name: str) -> None:
         """Delete the note and reload the layout"""
