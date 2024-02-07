@@ -1,6 +1,7 @@
 # coding=utf-8
 """Code by Aens"""
 import datetime
+import time
 
 import pyperclip
 from pathlib import Path
@@ -248,14 +249,15 @@ class GUI(QtWidgets.QMainWindow):
     def save_note(self, event: str, name: str, obj: QtWidgets.QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
         print(f"{datetime.datetime.now()} {event}")
+        print(f"{name}, {obj}")  # TODO bug happens because the event getting here is always on last item
         if event == "OnButtonSave":
             self.notepad.save_note(filename=name, value=obj.toPlainText())
-            self.notepad.reload_notes()  # It reloads the dict
+            self.notepad.reload_notes()
             self.reload_notes_layout()
         elif event == "OnLeave":
             if self.AUTOSAVE:
                 self.notepad.save_note(filename=name, value=obj.toPlainText())
-                self.notepad.reload_notes()  # TODO it doesn't reloads the dict
+                self.notepad.reload_notes()
                 self.reload_notes_layout()
 
     def add_note(self) -> None:
