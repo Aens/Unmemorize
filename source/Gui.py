@@ -244,6 +244,7 @@ class GUI(QtWidgets.QMainWindow):
 
     def save_note(self, event: str, name: str, obj: QtWidgets.QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
+        print(event)
         if event == "OnLeave":
             if not self.AUTOSAVE:
                 return
