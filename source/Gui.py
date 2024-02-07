@@ -137,7 +137,7 @@ class GUI(QtWidgets.QMainWindow):
             text_edit.setPlainText(value)
             text_edit.setReadOnly(False)
             # Connect the leaveEvent signal to the save_note method
-            text_edit.leaveEvent = lambda event, name=key, obj=text_edit: self.save_note("OnLeave", name, obj)
+            text_edit.focusOutEvent = lambda event, name=key, obj=text_edit: self.save_note("OnLeave", name, obj)
 
             # Create buttons
             button_save = QtWidgets.QPushButton("💾")
@@ -225,8 +225,10 @@ class GUI(QtWidgets.QMainWindow):
         for i in reversed(range(self.notes_scroll_layout.count())):
             item = self.notes_scroll_layout.itemAt(i)
             if item.widget():
-                item.widget().setParent(None)
-        # # Rebuild the layout
+                widget = item.widget()
+                widget.setParent(None)
+                widget.deleteLater()
+        # Rebuild the layout
         self.populate_notes_layout(self.notes_scroll_layout)
 
     def copy_note(self, name: str, obj: str) -> None:
@@ -246,6 +248,7 @@ class GUI(QtWidgets.QMainWindow):
             if not self.AUTOSAVE:
                 return
             else:
+                print(event)
                 # TODO save with OnLeave event should be fixed here
                 pass
         # Save the data
