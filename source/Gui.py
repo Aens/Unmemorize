@@ -140,7 +140,7 @@ class GUI(QtWidgets.QMainWindow):
             text_edit.setPlainText(value)
             text_edit.setReadOnly(False)
             # Connect the leaveEvent signal to the save_note method
-            text_edit.leaveEvent = lambda event: self.save_note(event="OnLeave", name=key, obj=text_edit)
+            text_edit.leaveEvent = lambda event, name=key, obj=text_edit: self.save_note(event="OnLeave", name=name, obj=obj)
 
             # Create buttons
             button_save = QtWidgets.QPushButton("💾")
