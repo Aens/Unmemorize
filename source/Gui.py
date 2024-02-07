@@ -249,16 +249,16 @@ class GUI(QtWidgets.QMainWindow):
     def save_note(self, event: str, name: str, obj: QtWidgets.QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
         print(f"{datetime.datetime.now()} {event}")
-        print(f"{name}, {obj}")  # TODO bug happens because the event getting here is always on last item
-        if event == "OnButtonSave":
-            self.notepad.save_note(filename=name, value=obj.toPlainText())
-            self.notepad.reload_notes()
-            self.reload_notes_layout()
-        elif event == "OnLeave":
-            if self.AUTOSAVE:
-                self.notepad.save_note(filename=name, value=obj.toPlainText())
-                self.notepad.reload_notes()
-                self.reload_notes_layout()
+        # Capture Events to make sure we only save on specific conditions
+        if event == "OnLeave":
+            if not self.AUTOSAVE:
+                return  # DON'T save on Leave Events if autosave is not ON.
+        elif event == "OnButtonSave":
+            pass
+        # If we made it this far, okay, go ahead and save the note
+        self.notepad.save_note(filename=name, value=obj.toPlainText())
+        self.notepad.reload_notes()
+        self.reload_notes_layout()
 
     def add_note(self) -> None:
         """Implements the logic to add a new note"""
