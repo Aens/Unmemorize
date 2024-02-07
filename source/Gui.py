@@ -245,6 +245,9 @@ class GUI(QtWidgets.QMainWindow):
         if event == "OnLeave":
             if not self.AUTOSAVE:
                 return
+            else:
+                # TODO save with OnLeave event should be fixed here
+                pass
         # Save the data
         self.notepad.save_note(filename=name, value=obj.toPlainText())
         self.notepad.reload_notes()
