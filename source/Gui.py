@@ -254,7 +254,7 @@ class GUI(QtWidgets.QMainWindow):
         # Save the data
         self.notepad.save_note(filename=name, value=obj.toPlainText())
         self.notepad.reload_notes()
-        self.reload_notes_layout()
+        # self.reload_notes_layout()  # TODO followed the bug to this part
 
     def add_note(self) -> None:
         """Implements the logic to add a new note"""
