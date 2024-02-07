@@ -255,9 +255,11 @@ class GUI(QtWidgets.QMainWindow):
         elif event == "OnButtonSave":
             pass
         # Check if the note for what we triggered the event requires an actual save or nothing changed
-
+        value = obj.toPlainText()
+        if value == self.notepad.notes[name]:
+            return   # DON'T save as it's not needed
         # If we made it this far, okay, go ahead and save the note
-        self.notepad.save_note(filename=name, value=obj.toPlainText())
+        self.notepad.save_note(filename=name, value=value)
         self.notepad.reload_notes()
         self.reload_notes_layout()
 
