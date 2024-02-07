@@ -139,7 +139,7 @@ class GUI(QtWidgets.QMainWindow):
             text_edit.setPlainText(value)
             text_edit.setReadOnly(False)
             # Connect the leaveEvent signal to the save_note method
-            text_edit.focusOutEvent = lambda event: self.save_note(event="OnLeave", name=key, obj=text_edit)
+            text_edit.leaveEvent = lambda event: self.save_note(event="OnLeave", name=key, obj=text_edit)
 
             # Create buttons
             button_save = QtWidgets.QPushButton("💾")
@@ -250,15 +250,12 @@ class GUI(QtWidgets.QMainWindow):
         print(f"{datetime.datetime.now()} {event}")
         if event == "OnButtonSave":
             self.notepad.save_note(filename=name, value=obj.toPlainText())
-            self.notepad.reload_notes()
+            self.notepad.reload_notes()  # It reloads the dict
             self.reload_notes_layout()
         elif event == "OnLeave":
             if self.AUTOSAVE:
-                print(1)
                 self.notepad.save_note(filename=name, value=obj.toPlainText())
-                print(2)
-                self.notepad.reload_notes()
-                print(3)
+                self.notepad.reload_notes()  # TODO it doesn't reloads the dict
                 self.reload_notes_layout()
 
     def add_note(self) -> None:
