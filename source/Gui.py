@@ -139,8 +139,7 @@ class GUI(QtWidgets.QMainWindow):
             text_edit.setPlainText(value)
             text_edit.setReadOnly(False)
             # Connect the leaveEvent signal to the save_note method
-            text_edit.focusOutEvent = lambda event: self.save_note("OnLeave", key, text_edit)
-            # text_edit.keyReleaseEvent = lambda event, name=key, obj=text_edit: self.save_note("OnLeave", name, obj)
+            text_edit.focusOutEvent = lambda event: self.save_note(event="OnLeave", name=key, obj=text_edit)
 
             # Create buttons
             button_save = QtWidgets.QPushButton("💾")
@@ -227,10 +226,11 @@ class GUI(QtWidgets.QMainWindow):
         # Delete existing layout if it does exist
         for i in reversed(range(self.notes_scroll_layout.count())):
             item = self.notes_scroll_layout.itemAt(i)
-            if item.widget():
-                widget = item.widget()
-                widget.setParent(None)
-                widget.deleteLater()
+            widget = item.widget()
+            if isinstance(widget, QtWidgets.QTextEdit):
+                widget.disconnect(widget)
+            # widget.setParent(None)  # TODO for some reason this duplicates the onLeave events
+            widget.deleteLater()
         # Rebuild the layout
         self.populate_notes_layout(self.notes_scroll_layout)
 
@@ -248,13 +248,18 @@ class GUI(QtWidgets.QMainWindow):
     def save_note(self, event: str, name: str, obj: QtWidgets.QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
         print(f"{datetime.datetime.now()} {event}")
-        if event == "OnLeave":
-            if not self.AUTOSAVE:
-                return
-        # Save the data
-        self.notepad.save_note(filename=name, value=obj.toPlainText())
-        self.notepad.reload_notes()
-        # self.reload_notes_layout()  # TODO followed the bug to this part
+        if event == "OnButtonSave":
+            self.notepad.save_note(filename=name, value=obj.toPlainText())
+            self.notepad.reload_notes()
+            self.reload_notes_layout()
+        elif event == "OnLeave":
+            if self.AUTOSAVE:
+                print(1)
+                self.notepad.save_note(filename=name, value=obj.toPlainText())
+                print(2)
+                self.notepad.reload_notes()
+                print(3)
+                self.reload_notes_layout()
 
     def add_note(self) -> None:
         """Implements the logic to add a new note"""
