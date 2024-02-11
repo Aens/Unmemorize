@@ -3,4 +3,5 @@ Maybe Templates
 Maybe colors for statusbar, or an improved statusbar
 Optimize the layout loading. I don't like it.
 Open a note in a big window, as external widget
-Customizar cantidad de notas a visualizar tanto de ancho como de largo
+Customize the amount of notes to visualize (Columns * Rows)
+Ask for confirmation to delete notes (you know, butter fingers)

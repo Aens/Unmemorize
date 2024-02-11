@@ -68,31 +68,41 @@ class NotesTab:
             text_edit.leaveEvent = lambda event, name=key, obj=text_edit: self.save_note(event="OnLeave", name=name, obj=obj)
 
             # Create buttons
+            button_open = QtWidgets.QPushButton("🔍")
+            button_copy = QtWidgets.QPushButton("📝")
             button_save = QtWidgets.QPushButton("💾")
             button_delete = QtWidgets.QPushButton("❌")
-            button_copy = QtWidgets.QPushButton("📝")
+
+            # Set tooltips
+            button_open.setToolTip('Abre esta nota en una ventana más grande')
+            button_copy.setToolTip('Copia la nota al portapapeles')
+            button_save.setToolTip('Guarda la nota de este botón (el resto no serán guardadas)')
+            button_delete.setToolTip('Borra la nota de este botón')
 
             # Set fixed size for buttons
+            button_open.setFixedSize(30, 30)
             button_save.setFixedSize(30, 30)
             button_copy.setFixedSize(30, 30)
             button_delete.setFixedSize(30, 30)
 
             # Connect buttons to functions
+            button_open.clicked.connect(lambda name=key, obj=text_edit: self.open_note(name, obj))
             button_save.clicked.connect(lambda name=key, obj=text_edit: self.save_note("OnButtonSave", name, obj))
             button_delete.clicked.connect(lambda name=key, v=value: self.delete_note(name))
             button_copy.clicked.connect(lambda name=key, obj=text_edit: self.copy_note(name, obj))
 
             # Add buttons into the layout (element, row, col, IDK, spans this many columns)
             scroll_layout.addWidget(label, row, col, 1, 1)
-            scroll_layout.addWidget(button_save, row, col + 1, 1, 1)
+            scroll_layout.addWidget(button_open, row, col + 1, 1, 1)
             scroll_layout.addWidget(button_copy, row, col + 2, 1, 1)
-            scroll_layout.addWidget(button_delete, row, col + 3, 1, 1)
-            scroll_layout.addWidget(text_edit, row + 1, col, 1, 4)
+            scroll_layout.addWidget(button_save, row, col + 3, 1, 1)
+            scroll_layout.addWidget(button_delete, row, col + 4, 1, 1)
+            scroll_layout.addWidget(text_edit, row + 1, col, 1, 5)
 
             row += 2  # Increment by 2 to leave space for buttons
             if row > 4:  # Check if we need to start a new column
                 row = 0
-                col += 4  # Increment by 4 to leave space for buttons
+                col += 5  # Increment to leave space for buttons. Must be same as wide as the Text_Edit
 
     def reload_notes_layout(self) -> None:
         """Reload the layout by destroying it and calling to recreate it"""
@@ -111,6 +121,11 @@ class NotesTab:
     # BUTTONS #
     ###########
 
+    def open_note(self, name: str, obj: str) -> None:
+        """Copy the note into notepad"""
+        text = obj.toPlainText()
+        self.gui.show_in_statusbar(f"Nota '{name}' maximizada.")
+
     def copy_note(self, name: str, obj: str) -> None:
         """Copy the note into notepad"""
         pyperclip.copy(obj.toPlainText())
@@ -126,7 +141,7 @@ class NotesTab:
         """Save the text on the note and reload the layout"""
         # Capture Events to make sure we only save on specific conditions
         if event == "OnLeave":
-            if not self.settings.AUTOSAVE:  # TODO fix this when settings tab works
+            if not self.settings.AUTOSAVE:
                 return  # DON'T save on Leave Events if autosave is not ON.
         elif event == "OnButtonSave":
             pass

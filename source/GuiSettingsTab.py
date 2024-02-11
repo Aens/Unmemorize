@@ -87,9 +87,8 @@ class SettingsTab:
             "0": "resources/theme_gray.QSS",
             "1": "resources/theme_dark.QSS",
             "2": "resources/theme_light.QSS",
-            "3": "resources/theme_green.QSS"
-        }
-        with open(mapped_options[style], "r", encoding="UTF-8") as file:
+            "3": "resources/theme_green.QSS"}
+        with open(mapped_options[style], encoding="UTF-8") as file:
             stylesheet = file.read()
         self.THEME = style
         self.gui.app.setStyleSheet(stylesheet)
