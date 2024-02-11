@@ -9,7 +9,6 @@ from source.GuiNotesTab import NotesTab
 from source.GuiPrivateNotesTab import PrivateNotesTab
 from source.GuiSettingsTab import SettingsTab
 
-
 __VERSION__ = "v0.6"
 __AUTHOR__ = "Alex"
 RESOURCES = Path.cwd().joinpath("resources")

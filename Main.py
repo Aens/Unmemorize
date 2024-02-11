@@ -6,17 +6,7 @@ from pathlib import Path
 from source import Notepad, Gui
 import sys
 
-
-##########
-# LOADER #
-##########
-
 MAIN_FOLDER = Path.cwd()
-
-
-def make_sure_folder_exists(fullpath: Path):
-    """Dinamycally create the folder if it doesn't exist."""
-    fullpath.mkdir(parents=True, exist_ok=True)
 
 
 def loader():
@@ -31,6 +21,11 @@ def loader():
     # Run the application's event loop
     main_window.show()
     sys.exit(app.exec())
+
+
+def make_sure_folder_exists(fullpath: Path):
+    """Dinamycally create the folder if it doesn't exist."""
+    fullpath.mkdir(parents=True, exist_ok=True)
 
 
 # Initialize the program
