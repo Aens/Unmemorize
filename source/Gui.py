@@ -4,7 +4,7 @@ from datetime import datetime
 import pyperclip
 from pathlib import Path
 from PySide6 import QtWidgets, QtCore
-from PySide6.QtCore import QSize, QPoint, QTimer
+from PySide6.QtCore import QSize, QPoint
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QInputDialog, QLineEdit, QTabWidget
 
@@ -54,7 +54,7 @@ class GUI(QtWidgets.QMainWindow):
 
     def show_in_statusbar(self, message: str) -> None:
         """Show something in the statusbar for a little bit"""
-        # self.statusBar.setStyleSheet("background-color: darkgrey;")
+        # self.statusBar.setStyleSheet("background-color: darkgreen;")
         self.statusBar.showMessage(f"{datetime.now().strftime('%H:%M:%S')} - {message}")
 
     def load_program_config(self) -> None:
@@ -224,8 +224,8 @@ class GUI(QtWidgets.QMainWindow):
             widget = item.widget()
             if isinstance(widget, QtWidgets.QTextEdit):
                 widget.disconnect(widget)
-            # widget.setParent(None)  # TODO for some reason this duplicates the onLeave events
             widget.deleteLater()
+            # widget.setParent(None)  # TODO for some reason this duplicates the onLeave events
         # Rebuild the layout
         self.populate_notes_layout(self.notes_scroll_layout)
 
