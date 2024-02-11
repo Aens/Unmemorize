@@ -123,12 +123,11 @@ class NotesTab:
 
     def open_note(self, name: str, obj) -> None:
         """Copy the note into notepad"""
-        new_window = NewWindow(self.gui)
-        new_window.set_data(name=name, text=obj.toPlainText())
+        new_window = NewWindow(self.gui, notes_tab=self, name=name, text=obj.toPlainText())
         new_window.show()
         self.gui.show_in_statusbar(f"Nota '{name}' maximizada.")
 
-    def copy_note(self, name: str, obj: str) -> None:
+    def copy_note(self, name: str, obj) -> None:
         """Copy the note into notepad"""
         pyperclip.copy(obj.toPlainText())
         self.gui.show_in_statusbar(f"Nota '{name}' copiada al portapapeles.")
@@ -173,34 +172,36 @@ class NotesTab:
 
 class NewWindow(QDialog):
     """Creates the new big window"""
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, notes_tab=None, name=None, text: str = ""):
         super().__init__(parent)
-
         # New window setup
         self.setGeometry(200, 200, 400, 300)
-        self.name = None
-        # Create buttons
+        self.notes_tab = notes_tab
+        self.name = name
+        self.setWindowTitle(f"Nota: {name}")
+
+        # Create TextEdit and Labels
         label = QtWidgets.QLabel(f"{self.name}:")
         label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
         self.text_edit = QtWidgets.QTextEdit(self)
+        self.text_edit.setPlainText(text)
+
+        # Create buttons
         button_copy = QtWidgets.QPushButton("📝")
         button_save = QtWidgets.QPushButton("💾")
         button_delete = QtWidgets.QPushButton("❌")
-
         # Set tooltips
         button_copy.setToolTip('Copia la nota al portapapeles')
         button_save.setToolTip('Guarda la nota de este botón (el resto no serán guardadas)')
         button_delete.setToolTip('Borra la nota de este botón')
-
         # Set fixed size for buttons
         button_save.setFixedSize(30, 30)
         button_copy.setFixedSize(30, 30)
         button_delete.setFixedSize(30, 30)
-
         # Connect buttons to functions
-        # button_save.clicked.connect(lambda name=self.name, obj=self.text_edit: self.save_note("OnButtonSave", name, obj))
-        # button_delete.clicked.connect(lambda name=self.name, v="Unnecesary": self.delete_note(name))
-        # button_copy.clicked.connect(lambda name=self.name, obj=self.text_edit: self.copy_note(name, obj))
+        button_save.clicked.connect(lambda name=self.name, obj=self.text_edit: self.notes_tab.save_note("OnButtonSave", name, obj))
+        button_delete.clicked.connect(self.delete_note_from_here)
+        button_copy.clicked.connect(lambda name=self.name, obj=self.text_edit: self.notes_tab.copy_note(name, obj))
 
         # Layout for the new window
         layout = QtWidgets.QGridLayout(self)  # <-- pointer to re-populate it
@@ -209,12 +210,10 @@ class NewWindow(QDialog):
         layout.addWidget(button_copy, 0, 1, 1, 1)
         layout.addWidget(button_save, 0, 2, 1, 1)
         layout.addWidget(button_delete, 0, 3, 1, 1)
-        layout.addWidget(self.text_edit, 1, 1, 1, 4)  # TODO FIX THIS POSITIONING!
+        layout.addWidget(self.text_edit, 1, 0, 1, 4)  # TODO FIX THIS POSITIONING!
         self.setLayout(layout)
 
-    def set_data(self, name: str, text: str) -> None:
-        """Sets the data to the new window"""
-        self.name = name
-        self.setWindowTitle(f"Nota: {name}")
-        self.text_edit.setPlainText(text)
-
+    def delete_note_from_here(self):
+        """Just close the window after deleting the note"""
+        self.notes_tab.delete_note(self.name)
+        self.close()
