@@ -210,7 +210,7 @@ class NewWindow(QDialog):
         layout.addWidget(button_copy, 0, 1, 1, 1)
         layout.addWidget(button_save, 0, 2, 1, 1)
         layout.addWidget(button_delete, 0, 3, 1, 1)
-        layout.addWidget(self.text_edit, 1, 0, 1, 4)  # TODO FIX THIS POSITIONING!
+        layout.addWidget(self.text_edit, 1, 0, 1, 4)
         self.setLayout(layout)
 
     def delete_note_from_here(self):
