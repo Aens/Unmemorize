@@ -6,6 +6,7 @@ from PySide6 import QtWidgets, QtCore
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QTabWidget
 from source.GuiNotesTab import NotesTab
+from source.GuiPrivateNotesTab import PrivateNotesTab
 from source.GuiSettingsTab import SettingsTab
 
 
@@ -39,14 +40,9 @@ class GUI(QtWidgets.QMainWindow):
         # Create the Content of those tabs
         self.settings = SettingsTab(self)  # <-- Settings must always be loaded before any other tab
         self.notes = NotesTab(self)
-        self.create_private_notes_tab()  # TODO TO ITS OWN FILE
+        self.private_notes = PrivateNotesTab(self)
         # Set it to the main gui
         self.setCentralWidget(self.tab_widget)
-
-    def show_in_statusbar(self, message: str) -> None:
-        """Show something in the statusbar for a little bit"""
-        # self.statusBar.setStyleSheet("background-color: darkgreen;")
-        self.statusBar.showMessage(f"{datetime.now().strftime('%H:%M:%S')} - {message}")
 
     def eventFilter(self, watched, event):
         """Event filter to handle events on the main window"""
@@ -58,9 +54,10 @@ class GUI(QtWidgets.QMainWindow):
                 self.settings.save_program_config()  # Store the window size to the config file
         return super().eventFilter(watched, event)
 
-    def create_private_notes_tab(self) -> None:
-        """Create the private notes tab and set its layout"""
-        private_notes_layout = QtWidgets.QVBoxLayout(self.private_notes_tab)
+    def show_in_statusbar(self, message: str) -> None:
+        """Show something in the statusbar for a little bit"""
+        # self.statusBar.setStyleSheet("background-color: darkgreen;")
+        self.statusBar.showMessage(f"{datetime.now().strftime('%H:%M:%S')} - {message}")
 
     def show_popup(self, message: str) -> None:
         """Show a Pop-up with a message"""
