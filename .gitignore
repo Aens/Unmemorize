@@ -1,5 +1,6 @@
 .venv
 .idea
 notes
+notes/notes.db
 old_notes
 program_settings.ini

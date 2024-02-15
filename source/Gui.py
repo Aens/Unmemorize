@@ -61,3 +61,8 @@ class GUI(QtWidgets.QMainWindow):
     def show_popup(self, message: str) -> None:
         """Show a Pop-up with a message"""
         QtWidgets.QMessageBox.information(self, "Information", message)
+
+    def ask_for_confirmation(self, message: str) -> bool:
+        """Ask for confirmation and return the answer"""
+        result = QtWidgets.QMessageBox.question(self, "Confirmation", message) == QtWidgets.QMessageBox.Yes
+        return result

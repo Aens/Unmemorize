@@ -3,5 +3,4 @@ Maybe Templates
 Maybe colors for statusbar, or an improved statusbar
 Optimize the layout loading. I don't like it.
 Customize the amount of notes to visualize (Columns * Rows)
-Ask for confirmation to delete notes (you know, butter fingers)
-Remember new window positioning with settings file
+Do not Share or Commit database file, ever

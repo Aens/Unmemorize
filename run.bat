@@ -1,1 +1,1 @@
-start /B venv\\Scripts\\pythonw.exe "source\\Main.py"
+start /B venv\\Scripts\\pythonw.exe "Main.py"

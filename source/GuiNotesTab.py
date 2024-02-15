@@ -2,6 +2,7 @@
 """Code by Aens"""
 import pyperclip
 from PySide6 import QtWidgets, QtCore
+from PySide6.QtCore import QSize, QPoint
 from PySide6.QtWidgets import QInputDialog, QLineEdit, QDialog
 
 
@@ -132,11 +133,15 @@ class NotesTab:
         pyperclip.copy(obj.toPlainText())
         self.gui.show_in_statusbar(f"Nota '{name}' copiada al portapapeles.")
 
-    def delete_note(self, name: str) -> None:
+    def delete_note(self, name: str) -> bool:
         """Delete the note and reload the layout"""
-        self.notepad.delete_note(name)
-        self.notepad.reload_notes()
-        self.reload_notes_layout()
+        if confirmation := self.gui.ask_for_confirmation(message=f"Seguro que quieres eliminar la nota llamada: {name}"):
+            self.notepad.delete_note(name)
+            self.notepad.reload_notes()
+            self.reload_notes_layout()
+        else:
+            self.gui.show_in_statusbar(f"Nota '{name}' no eliminada. Se ha cancelado el borrado.")
+        return confirmation
 
     def save_note(self, event: str, name: str, obj: QtWidgets.QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
@@ -177,14 +182,17 @@ class NewWindow(QDialog):
         # New window setup
         self.setGeometry(200, 200, 400, 300)
         self.notes_tab = notes_tab
+        self.settings = self.notes_tab.settings
         self.name = name
         self.setWindowTitle(f"Nota: {name}")
+        self.load_window_config()
 
         # Create TextEdit and Labels
         label = QtWidgets.QLabel(f"{self.name}:")
         label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
         self.text_edit = QtWidgets.QTextEdit(self)
         self.text_edit.setPlainText(text)
+        self.text_edit.leaveEvent = lambda event, name=name, obj=self.text_edit: self.notes_tab.save_note(event="OnLeave", name=name, obj=obj)
 
         # Create buttons
         button_copy = QtWidgets.QPushButton("📝")
@@ -212,8 +220,29 @@ class NewWindow(QDialog):
         layout.addWidget(button_delete, 0, 3, 1, 1)
         layout.addWidget(self.text_edit, 1, 0, 1, 4)
         self.setLayout(layout)
+        # Install an event filter on these new windows
+        self.installEventFilter(self)
 
     def delete_note_from_here(self):
         """Just close the window after deleting the note"""
-        self.notes_tab.delete_note(self.name)
-        self.close()
+        confirmation = self.notes_tab.delete_note(self.name)
+        if confirmation:
+            self.close()
+
+    def eventFilter(self, watched, event):
+        """Event filter to handle events on the main window"""
+        if watched == self:
+            if event.type() == QtCore.QEvent.Close:
+                self.save_window_config()  # Store the window size to the config file
+        return super().eventFilter(watched, event)
+
+    def load_window_config(self) -> None:
+        """Self-explanatory. It stores the data from a INI file"""
+        # Try to find the settings or just load the default values
+        self.resize(self.settings.settings_file.value("Subwindows/notes_size", QSize(800, 600)))
+        self.move(self.settings.settings_file.value("Subwindows/notes_location", QPoint(200, 200)))
+
+    def save_window_config(self) -> None:
+        """Save the window size to the config file"""
+        self.settings.settings_file.setValue("Subwindows/notes_size", self.size())
+        self.settings.settings_file.setValue("Subwindows/notes_location", self.pos())
