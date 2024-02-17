@@ -1,6 +1,6 @@
 Markdown and different styles - WORKING ON THIS NOW
+Button to add a timestamp into the text, where the cursor is.
 Maybe Templates
 Maybe colors for statusbar, or an improved statusbar
-Optimize the layout loading. I don't like it.
 Customize the amount of notes to visualize (Columns * Rows)
-Do not Share or Commit database file, ever
+IA capabilities, read your notes and transform them with a custom prompt.
