@@ -63,7 +63,7 @@ class NotesTab:
 
             # Create TextEdits
             text_edit = QtWidgets.QTextEdit()
-            text_edit.setPlainText(value)
+            text_edit.setHtml(value)
             text_edit.setReadOnly(False)
             # Connect the leaveEvent signal to the save_note method
             text_edit.leaveEvent = lambda event, name=key, obj=text_edit: self.save_note(event="OnLeave", name=name, obj=obj)
@@ -122,13 +122,13 @@ class NotesTab:
     # BUTTONS #
     ###########
 
-    def open_note(self, name: str, obj) -> None:
+    def open_note(self, name: str, obj: QtWidgets.QTextEdit) -> None:
         """Copy the note into notepad"""
-        new_window = NewWindow(self.gui, notes_tab=self, name=name, text=obj.toPlainText())
+        new_window = NewWindow(self.gui, notes_tab=self, name=name, text=obj.toHtml())
         new_window.show()
         self.gui.show_in_statusbar(f"Nota '{name}' maximizada.")
 
-    def copy_note(self, name: str, obj) -> None:
+    def copy_note(self, name: str, obj: QtWidgets.QTextEdit) -> None:
         """Copy the note into notepad"""
         pyperclip.copy(obj.toPlainText())
         self.gui.show_in_statusbar(f"Nota '{name}' copiada al portapapeles.")
@@ -153,7 +153,7 @@ class NotesTab:
             pass
         # Check if the note for what we triggered the event requires an actual save or nothing changed
         # This is a huge efficiency trick, we don't want thosands of unnecesary reloads on the GUI
-        value = obj.toPlainText()
+        value = obj.toHtml()
         if value == self.notepad.notes[name]:
             return   # DON'T save as it's not needed
         # If we made it this far, okay, go ahead and save the note
@@ -191,7 +191,7 @@ class NewWindow(QDialog):
         label = QtWidgets.QLabel(f"{self.name}:")
         label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
         self.text_edit = QtWidgets.QTextEdit(self)
-        self.text_edit.setPlainText(text)
+        self.text_edit.setHtml(text)
         self.text_edit.leaveEvent = lambda event, name=name, obj=self.text_edit: self.notes_tab.save_note(event="OnLeave", name=name, obj=obj)
 
         # Create buttons
