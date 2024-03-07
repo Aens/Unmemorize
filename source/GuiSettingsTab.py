@@ -17,6 +17,7 @@ class SettingsTab:
         # Settings
         self.AUTOSAVE = False
         self.THEME = 0
+        self.NOTES_ROWS = 0
         # Initialize
         self.load_program_config()  # Override default settings with the ones from file
         self.create_settings_tab()  # Create the new tab
@@ -31,8 +32,9 @@ class SettingsTab:
         # Try to find the settings or just load the default values
         self.gui.resize(self.settings_file.value("Window/size", QSize(800, 600)))
         self.gui.move(self.settings_file.value("Window/location", QPoint(200, 200)))
-        self.AUTOSAVE = True if self.settings_file.value("Settings/autosave_notes", "false") == "true" else False
-        self.THEME = self.settings_file.value("Settings/theme", 0)
+        self.AUTOSAVE = self.settings_file.value("Settings/autosave_notes", "false", bool)
+        self.THEME = self.settings_file.value("Settings/theme", 0, int)
+        self.NOTES_ROWS = self.settings_file.value("Settings/notes_rows", 4, int)
         self.change_stylesheet(style=self.THEME)
 
     def save_program_config(self) -> None:
@@ -41,6 +43,7 @@ class SettingsTab:
         self.settings_file.setValue("Window/location", self.gui.pos())
         self.settings_file.setValue("Settings/autosave_notes", self.AUTOSAVE)
         self.settings_file.setValue("Settings/theme", self.THEME)
+        self.settings_file.setValue("Settings/notes_rows", self.NOTES_ROWS)
 
     ##########
     # LAYOUT #
@@ -58,15 +61,25 @@ class SettingsTab:
         # 2 - AutoSave
         auto_save_checkbox = QtWidgets.QCheckBox("Guardar Notas Automáticamente")
         auto_save_checkbox.setChecked(self.AUTOSAVE)  # Set the initial state
+        # 3 - Layout options
+        notes_layout_rows_label = QtWidgets.QLabel("Filas de Notas: ")
+        notes_layout_rows = QtWidgets.QSpinBox()
+        notes_layout_rows.setRange(1, 20)
+        notes_layout_rows.setValue(4)
+
         # Set up a grid layout for the label and combobox
         settings_layout = QtWidgets.QGridLayout(self.this_tab)
+        settings_layout.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)  # Align to top-left
+        # Set up the items
         settings_layout.addWidget(stylesheet_label, 0, 0)  # Label in the first row, first column
         settings_layout.addWidget(stylesheet_combobox, 0, 1)  # Combobox in the first row, second column
         settings_layout.addWidget(auto_save_checkbox, 1, 0, 1, 2)  # Combobox in the first row, second column
-        settings_layout.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)  # Align to top-left
+        settings_layout.addWidget(notes_layout_rows_label, 2, 0)  # Combobox in the first row, second column
+        settings_layout.addWidget(notes_layout_rows, 2, 1)  # Combobox in the first row, second column
         # Connections/Events
         stylesheet_combobox.currentIndexChanged.connect(self.change_stylesheet)
         auto_save_checkbox.stateChanged.connect(self.handle_auto_save_checkbox)
+        notes_layout_rows.valueChanged.connect(self.change_amount_of_rows)
 
     ############
     # SETTINGS #
@@ -92,3 +105,9 @@ class SettingsTab:
             stylesheet = file.read()
         self.THEME = style
         self.gui.app.setStyleSheet(stylesheet)
+
+    def change_amount_of_rows(self, value: int) -> None:
+        """Reload the notes with a fixed amount
+           :param value: values can be from 1 to 20"""
+        self.NOTES_ROWS = value
+        self.gui.notes.reload_notes_layout()
