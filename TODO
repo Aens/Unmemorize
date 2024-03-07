@@ -5,6 +5,5 @@ Maybe colors for statusbar, or an improved statusbar
 -- MEDIUM --
 Maybe Templates
 Make possible to resize/move the grid splitters (add splitters)
-Customize the amount of notes to visualize (Columns, rows is already done)
 -- HARD --
 IA capabilities, read your notes and transform them with a custom prompt.

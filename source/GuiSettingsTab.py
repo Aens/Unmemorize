@@ -111,3 +111,4 @@ class SettingsTab:
            :param value: values can be from 1 to 20"""
         self.NOTES_ROWS = value
         self.gui.notes.reload_notes_layout()
+        self.gui.show_in_statusbar(f"Notas recargadas. Cantidad de filas: {value}")
