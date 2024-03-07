@@ -262,7 +262,8 @@ QTableView::item:selected {
     background-color: #BEBEBE;
     color: #000000;}
 
-
+QCheckBox {
+    color: #C8C8C8;}
 
 
 
