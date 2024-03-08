@@ -1,4 +1,5 @@
 -- EASY --
+Choose if we want to have vertical endless or horizontal endless
 Add support for Maximize window on program startup.
 Button to add a timestamp into the text, where the cursor is.
 Markdown and different styles

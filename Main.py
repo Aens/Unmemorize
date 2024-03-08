@@ -17,8 +17,7 @@ def loader():
     print(f"{datetime.now()}: Load GUIs.")
     app = QApplication(sys.argv)
     main_window = Gui.GUI(app=app, notepad=notepad)
-    print(f"{datetime.now()}: Running the App.")
-    # Run the application's event loop
+    print(f"{datetime.now()}: Executing application endless event loop.")
     main_window.show()
     sys.exit(app.exec())
 
