@@ -101,7 +101,7 @@ class NotesTab:
             scroll_layout.addWidget(text_edit, row + 1, col, 1, 5)
 
             row += 2  # Increment by 2 to leave space for buttons
-            if row > self.settings.NOTES_ROWS:  # Check if we need to start a new column  # todo bug here
+            if row >= self.settings.NOTES_ROWS * 2:  # Check if we need to start a new column
                 row = 0
                 col += 5  # Increment to leave space for buttons. Must be same as wide as the Text_Edit
 
