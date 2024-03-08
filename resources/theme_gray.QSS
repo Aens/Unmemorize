@@ -83,9 +83,6 @@ QMenu::indicator {
  https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtabwidget-and-qtabbar */
 QTabWidget::pane {
     background-color:#D9D9D9;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
     border: 2px solid #969696;
     padding: 2px;}
 
@@ -164,8 +161,7 @@ QProgressBar::chunk {
 QGroupBox {
     background-color: #D9D9D9;
     border: 2px solid #969696;
-    border-radius: 5px;
-    margin-top: 5px;}
+    margin-top: 15px;}
 
 QGroupBox::title {
     background-color: #D9D9D9;
@@ -262,6 +258,8 @@ QTableView::item:selected {
     background-color: #C8D2D2;
     color: #000000;}
 
+QCheckBox {
+    color: #000000;}
 
 
 

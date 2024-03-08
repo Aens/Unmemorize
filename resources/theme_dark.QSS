@@ -83,10 +83,7 @@ QMenu::indicator {
  https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtabwidget-and-qtabbar */
 QTabWidget::pane {
     background-color:#36393F;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border: 2px solid #0A0A0A;
+    border: 1px solid #0A0A0A;
     padding: 2px;}
 
 QTabBar {
@@ -164,8 +161,7 @@ QProgressBar::chunk {
 QGroupBox {
     background-color: #36393F;
     border: 2px solid #0A0A0A;
-    border-radius: 5px;
-    margin-top: 5px;}
+    margin-top: 15px;}
 
 QGroupBox::title {
     background-color: #36393F;
@@ -362,3 +358,14 @@ QCalendarWidget {
 QTabWidget QWidget QScrollArea QWidget[notesContainer="true"] {
     background-color: #36393F;
 }
+
+
+
+
+
+/* Unused in QTabWidget::pane
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-radius: 5px;
+*/
