@@ -38,8 +38,12 @@ class SettingsTab:
         """Self-explanatory. It stores the data from a INI file"""
         self.gui.setWindowOpacity(1)
         # Try to find the settings or just load the default values
+        # Window options
         self.gui.resize(self.settings_file.value("Window/size", QSize(800, 600)))
         self.gui.move(self.settings_file.value("Window/location", QPoint(200, 200)))
+        if self.settings_file.value("Window/maximize_on_startup", False, bool):
+            self.gui.showMaximized()
+        # Other options
         self.AUTOSAVE = self.settings_file.value("Settings/autosave_notes", "false", bool)
         self.THEME = self.settings_file.value("Settings/theme", 0, int)
         self.NOTES_LAYOUT = self.settings_file.value("Settings/notes_layout", 0, int)
@@ -49,8 +53,12 @@ class SettingsTab:
 
     def save_program_config(self) -> None:
         """Self-explanatory. It gets the data from a INI file"""
-        self.settings_file.setValue("Window/size", self.gui.size())
-        self.settings_file.setValue("Window/location", self.gui.pos())
+        # Window options
+        self.settings_file.setValue("Window/maximize_on_startup", self.gui.isMaximized())
+        if not self.gui.isMaximized():
+            self.settings_file.setValue("Window/size", self.gui.size())
+            self.settings_file.setValue("Window/location", self.gui.pos())
+        # Other options
         self.settings_file.setValue("Settings/autosave_notes", self.AUTOSAVE)
         self.settings_file.setValue("Settings/theme", self.THEME)
         self.settings_file.setValue("Settings/notes_layout", self.NOTES_LAYOUT)
