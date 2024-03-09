@@ -72,8 +72,8 @@ class SettingsTab:
         self.stylesheet_combobox.addItem("Oscuro")
         self.stylesheet_combobox.addItem("Azul")
         self.stylesheet_combobox.addItem("Verde")
-        print(type(self.THEME))
         self.stylesheet_combobox.setCurrentIndex(self.THEME)  # Set the initial state from memory
+        self.stylesheet_combobox.setToolTip('Cambia el estilo de todo el programa. Puede ser necesario un reinicio.')
         # add to layout
         layout_stylesheet.addWidget(stylesheet_label, 0, 0)
         layout_stylesheet.addWidget(self.stylesheet_combobox, 0, 1)
@@ -84,6 +84,7 @@ class SettingsTab:
         layout_checkboxes = QtWidgets.QGridLayout()
         # controls
         self.auto_save_checkbox.setChecked(self.AUTOSAVE)  # Set the initial state from memory
+        self.auto_save_checkbox.setToolTip('Auto-guarda la nota al sacar el puntero del área de la nota')
         # add to layout
         layout_checkboxes.addWidget(self.auto_save_checkbox, 1, 0, 1, 2)
         group_box_checkboxes.setLayout(layout_checkboxes)
@@ -96,16 +97,19 @@ class SettingsTab:
         self.notes_layout_combobox.addItem("Vertical")
         self.notes_layout_combobox.addItem("Horizontal")
         self.notes_layout_combobox.setCurrentIndex(self.NOTES_LAYOUT)  # Set the initial state from memory
+        self.notes_layout_combobox.setToolTip('Reconfigura el panel de notas para scroll Vertical u Horizontal.')
         # rows
         notes_layout_rows_label = QtWidgets.QLabel("Cantidad de Filas: ")
         self.notes_layout_rows.setRange(1, 20)
         self.notes_layout_rows.setValue(4)
-        self.notes_layout_rows.setToolTip('Solo modificable en modo Vertical')
+        self.notes_layout_rows.setToolTip('Solo modificable en modo Horizontal')
+        self.notes_layout_rows.setDisabled(True if self.NOTES_LAYOUT == 0 else False)
         # cols
         notes_layout_columns_label = QtWidgets.QLabel("Cantidad de Columnas: ")
         self.notes_layout_columns.setRange(1, 20)
         self.notes_layout_columns.setValue(4)
-        self.notes_layout_columns.setToolTip('Solo modificable en modo Horizontal')
+        self.notes_layout_columns.setToolTip('Solo modificable en modo Vertical')
+        self.notes_layout_columns.setDisabled(True if self.NOTES_LAYOUT == 1 else False)
         # add to layout
         layout_notes_layout.addWidget(layout_label, 0, 0)
         layout_notes_layout.addWidget(self.notes_layout_combobox, 0, 1)
@@ -155,7 +159,7 @@ class SettingsTab:
         self.gui.app.setStyleSheet(stylesheet)
 
     def change_notes_layout(self, style: int) -> None:
-        """Change the application stylesheet"""
+        """Change the layout of the notes: horizontal or vertical"""
         if style == 0:  # Vertical
             self.notes_layout_rows.setDisabled(True)
             self.notes_layout_columns.setDisabled(False)
