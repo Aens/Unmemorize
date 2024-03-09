@@ -4,7 +4,8 @@ Maybe colors for statusbar, or an improved statusbar
 Button to add a timestamp into the text, where the cursor is.
 Markdown and different styles
 -- MEDIUM --
-Maybe Templates
+minimum size for each note, both width and height (with too many, on vertical mode they are just tiny)
 Make possible to resize/move the grid splitters (add splitters)
+Maybe Templates
 -- HARD --
 IA capabilities, read your notes and transform them with a custom prompt.
