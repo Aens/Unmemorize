@@ -14,14 +14,20 @@ class SettingsTab:
         self.notepad = self.gui.notepad  # <-- Pointer for lazyness, to not call the gui all the time
         self.notes_scroll_layout = None  # <-- Pointer so we can reload this tab later
         self.settings_file = QtCore.QSettings('program_settings.ini', QtCore.QSettings.IniFormat)
+        # Pointers to some specific elements to call them from outside the constructor
+        self.stylesheet_combobox = QtWidgets.QComboBox()
+        self.auto_save_checkbox = QtWidgets.QCheckBox("Guardar Notas Automáticamente")
+        self.notes_layout_combobox = QtWidgets.QComboBox()
+        self.notes_layout_columns = QtWidgets.QSpinBox()
+        self.notes_layout_rows = QtWidgets.QSpinBox()
         # Settings
         self.AUTOSAVE = False
         self.THEME = 0
         self.NOTES_LAYOUT = 0
         self.NOTES_ROWS = 0
         self.NOTES_COLUMNS = 0
-        # Initialize
         self.load_program_config()  # Override default settings with the ones from file
+        # Initialize
         self.create_settings_tab()  # Create the new tab
 
     ###############
@@ -62,24 +68,24 @@ class SettingsTab:
         layout_stylesheet = QtWidgets.QGridLayout()
         # controls
         stylesheet_label = QtWidgets.QLabel("Estilo del programa:")
-        stylesheet_combobox = QtWidgets.QComboBox()
-        stylesheet_combobox.addItem("Gris")
-        stylesheet_combobox.addItem("Oscuro")
-        stylesheet_combobox.addItem("Azul")
-        stylesheet_combobox.addItem("Verde")
+        self.stylesheet_combobox.addItem("Gris")
+        self.stylesheet_combobox.addItem("Oscuro")
+        self.stylesheet_combobox.addItem("Azul")
+        self.stylesheet_combobox.addItem("Verde")
+        print(type(self.THEME))
+        self.stylesheet_combobox.setCurrentIndex(self.THEME)  # Set the initial state from memory
         # add to layout
         layout_stylesheet.addWidget(stylesheet_label, 0, 0)
-        layout_stylesheet.addWidget(stylesheet_combobox, 0, 1)
+        layout_stylesheet.addWidget(self.stylesheet_combobox, 0, 1)
         group_box_stylesheet.setLayout(layout_stylesheet)
 
         # 2 - AutoSave
         group_box_checkboxes = QtWidgets.QGroupBox('Opciones generales')
         layout_checkboxes = QtWidgets.QGridLayout()
         # controls
-        auto_save_checkbox = QtWidgets.QCheckBox("Guardar Notas Automáticamente")
-        auto_save_checkbox.setChecked(self.AUTOSAVE)  # Set the initial state from memory
+        self.auto_save_checkbox.setChecked(self.AUTOSAVE)  # Set the initial state from memory
         # add to layout
-        layout_checkboxes.addWidget(auto_save_checkbox, 1, 0, 1, 2)
+        layout_checkboxes.addWidget(self.auto_save_checkbox, 1, 0, 1, 2)
         group_box_checkboxes.setLayout(layout_checkboxes)
 
         # 3 - Notes Layout options
@@ -87,26 +93,26 @@ class SettingsTab:
         layout_notes_layout = QtWidgets.QGridLayout()
         # controls
         layout_label = QtWidgets.QLabel("Scroll infinito para las notas: ")
-        layout_combobox = QtWidgets.QComboBox()
-        layout_combobox.addItem("Vertical")
-        layout_combobox.addItem("Horizontal")
+        self.notes_layout_combobox.addItem("Vertical")
+        self.notes_layout_combobox.addItem("Horizontal")
+        self.notes_layout_combobox.setCurrentIndex(self.NOTES_LAYOUT)  # Set the initial state from memory
         # rows
         notes_layout_rows_label = QtWidgets.QLabel("Cantidad de Filas: ")
-        notes_layout_rows = QtWidgets.QSpinBox()
-        notes_layout_rows.setRange(1, 20)
-        notes_layout_rows.setValue(4)
+        self.notes_layout_rows.setRange(1, 20)
+        self.notes_layout_rows.setValue(4)
+        self.notes_layout_rows.setToolTip('Solo modificable en modo Vertical')
         # cols
         notes_layout_columns_label = QtWidgets.QLabel("Cantidad de Columnas: ")
-        notes_layout_columns = QtWidgets.QSpinBox()
-        notes_layout_columns.setRange(1, 20)
-        notes_layout_columns.setValue(4)
+        self.notes_layout_columns.setRange(1, 20)
+        self.notes_layout_columns.setValue(4)
+        self.notes_layout_columns.setToolTip('Solo modificable en modo Horizontal')
         # add to layout
         layout_notes_layout.addWidget(layout_label, 0, 0)
-        layout_notes_layout.addWidget(layout_combobox, 0, 1)
+        layout_notes_layout.addWidget(self.notes_layout_combobox, 0, 1)
         layout_notes_layout.addWidget(notes_layout_rows_label, 1, 0)
-        layout_notes_layout.addWidget(notes_layout_rows, 1, 1)
+        layout_notes_layout.addWidget(self.notes_layout_rows, 1, 1)
         layout_notes_layout.addWidget(notes_layout_columns_label, 2, 0)
-        layout_notes_layout.addWidget(notes_layout_columns, 2, 1)
+        layout_notes_layout.addWidget(self.notes_layout_columns, 2, 1)
         group_box_notes_layout.setLayout(layout_notes_layout)
 
         # Set up a grid layout for the label and combobox
@@ -118,11 +124,11 @@ class SettingsTab:
         settings_layout.addWidget(group_box_notes_layout, 2, 0)
 
         # Connections/Events
-        stylesheet_combobox.currentIndexChanged.connect(self.change_stylesheet)
-        auto_save_checkbox.stateChanged.connect(self.handle_auto_save_checkbox)
-        layout_combobox.currentIndexChanged.connect(self.change_notes_layout)
-        notes_layout_rows.valueChanged.connect(self.change_amount_of_rows)
-        notes_layout_columns.valueChanged.connect(self.change_amount_of_columns)
+        self.stylesheet_combobox.currentIndexChanged.connect(self.change_stylesheet)
+        self.auto_save_checkbox.stateChanged.connect(self.handle_auto_save_checkbox)
+        self.notes_layout_combobox.currentIndexChanged.connect(self.change_notes_layout)
+        self.notes_layout_rows.valueChanged.connect(self.change_amount_of_rows)
+        self.notes_layout_columns.valueChanged.connect(self.change_amount_of_columns)
 
     ############
     # SETTINGS #
@@ -138,22 +144,24 @@ class SettingsTab:
 
     def change_stylesheet(self, style: int) -> None:
         """Change the application stylesheet"""
-        style = str(style)
         mapped_options = {
             "0": "resources/theme_gray.QSS",
             "1": "resources/theme_dark.QSS",
             "2": "resources/theme_light.QSS",
             "3": "resources/theme_green.QSS"}
-        with open(mapped_options[style], encoding="UTF-8") as file:
+        with open(mapped_options[str(style)], encoding="UTF-8") as file:
             stylesheet = file.read()
         self.THEME = style
         self.gui.app.setStyleSheet(stylesheet)
 
     def change_notes_layout(self, style: int) -> None:
         """Change the application stylesheet"""
-        # if style == 0: # TODO enable or disable the spinboxes
-        #     self.
-
+        if style == 0:  # Vertical
+            self.notes_layout_rows.setDisabled(True)
+            self.notes_layout_columns.setDisabled(False)
+        elif style == 1:  # Horizontal
+            self.notes_layout_rows.setDisabled(False)
+            self.notes_layout_columns.setDisabled(True)
         self.NOTES_LAYOUT = style
         self.gui.notes.reload_notes_layout()
 
