@@ -59,14 +59,22 @@ class NotesTab:
         row = 0
         col = 0
         for index, (key, value) in enumerate(self.notepad.notes.items()):
+            # Add the current note
             note = self.create_note_widget(key, value)
             scroll_layout.addWidget(note, row, col, 1, 1)
-            # Increment for next note
-            row += 1
-            # Check if we need to start a new column
-            if row >= self.settings.NOTES_ROWS:
-                row = 0
-                col += 1  # Increment to leave space for buttons. Must be same as wide as the Text_Edit
+            # Choose where to put the next note
+            # IF we are in Vertical Endless mode
+            if self.settings.NOTES_LAYOUT == 0:  # Vertical
+                col += 1
+                if col >= self.settings.NOTES_COLUMNS:
+                    row += 1
+                    col = 0
+            # IF we are in Horizontal Endless mode
+            elif self.settings.NOTES_LAYOUT == 1:  # Horizontal
+                row += 1
+                if row >= self.settings.NOTES_ROWS:
+                    row = 0
+                    col += 1
 
     def create_note_widget(self, key: str, value: str) -> QtWidgets.QWidget:
         """Creates a widget with all the data of a note"""

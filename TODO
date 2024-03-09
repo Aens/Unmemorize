@@ -1,9 +1,8 @@
 -- EASY --
-Choose if we want to have vertical endless or horizontal endless
 Add support for Maximize window on program startup.
+Maybe colors for statusbar, or an improved statusbar
 Button to add a timestamp into the text, where the cursor is.
 Markdown and different styles
-Maybe colors for statusbar, or an improved statusbar
 -- MEDIUM --
 Maybe Templates
 Make possible to resize/move the grid splitters (add splitters)

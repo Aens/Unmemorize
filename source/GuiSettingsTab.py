@@ -99,13 +99,13 @@ class SettingsTab:
         self.notes_layout_combobox.setCurrentIndex(self.NOTES_LAYOUT)  # Set the initial state from memory
         self.notes_layout_combobox.setToolTip('Reconfigura el panel de notas para scroll Vertical u Horizontal.')
         # rows
-        notes_layout_rows_label = QtWidgets.QLabel("Cantidad de Filas: ")
+        notes_layout_rows_label = QtWidgets.QLabel("Cantidad Maxima de Filas: ")
         self.notes_layout_rows.setRange(1, 20)
         self.notes_layout_rows.setValue(4)
         self.notes_layout_rows.setToolTip('Solo modificable en modo Horizontal')
         self.notes_layout_rows.setDisabled(True if self.NOTES_LAYOUT == 0 else False)
         # cols
-        notes_layout_columns_label = QtWidgets.QLabel("Cantidad de Columnas: ")
+        notes_layout_columns_label = QtWidgets.QLabel("Cantidad Maxima de Columnas: ")
         self.notes_layout_columns.setRange(1, 20)
         self.notes_layout_columns.setValue(4)
         self.notes_layout_columns.setToolTip('Solo modificable en modo Vertical')
