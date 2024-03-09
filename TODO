@@ -1,9 +1,10 @@
 -- EASY --
 Button to add a timestamp into the text, where the cursor is.
-Markdown and different styles
+Markdown and different styles in notes
+Set shortcuts for the WISIWYG editor once implemented
 -- MEDIUM --
 minimum size for each note, both width and height (with too many, on vertical mode they are just tiny)
 Make possible to resize/move the grid splitters (add splitters)
-Maybe Templates
+Maybe Templates in notes?
 -- HARD --
 IA capabilities, read your notes and transform them with a custom prompt.

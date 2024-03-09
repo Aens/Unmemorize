@@ -3,7 +3,8 @@
 import pyperclip
 from datetime import datetime
 from PySide6 import QtWidgets, QtCore
-from PySide6.QtCore import QSize, QPoint
+from PySide6.QtCore import QSize, QPoint, Qt
+from PySide6.QtGui import QTextCharFormat, QFont, QAction
 from PySide6.QtWidgets import QInputDialog, QLineEdit, QDialog
 
 
@@ -140,7 +141,6 @@ class NotesTab:
             if isinstance(widget, QtWidgets.QTextEdit):
                 widget.disconnect(widget)
             widget.deleteLater()
-            # widget.setParent(None)  # TODO for some reason this duplicates the onLeave events
         # Rebuild the layout
         self.populate_notes_layout(self.notes_scroll_layout)
 
@@ -248,6 +248,8 @@ class NewWindow(QDialog):
         self.setLayout(layout)
         # Install an event filter on these new windows
         self.installEventFilter(self)
+        # Add Format Editor
+        self.add_format_editor()
 
     def delete_note_from_here(self):
         """Just close the window after deleting the note"""
@@ -272,3 +274,57 @@ class NewWindow(QDialog):
         """Save the window size to the config file"""
         self.settings.settings_file.setValue("Subwindows/notes_size", self.size())
         self.settings.settings_file.setValue("Subwindows/notes_location", self.pos())
+
+    #################
+    # Format Editor #  This section is entirely experimental
+    #################
+
+    def add_format_editor(self):
+        """Create the Formatting Editor"""
+        # Create a toolbar
+        toolbar = QtWidgets.QToolBar("Formatting Toolbar", self)
+        self.layout().addWidget(toolbar)
+
+        # Bold Button
+        bold = QtWidgets.QPushButton("B", self)
+        bold_text = QFont()
+        bold_text.setBold(True)
+        bold.setFont(bold_text)
+        bold.clicked.connect(lambda x: self.format_selection("bold"))
+        toolbar.addWidget(bold)
+
+        # Italic Button
+        italic = QtWidgets.QPushButton("I", self)
+        italic_text = QFont()
+        italic_text.setItalic(True)
+        italic.setFont(italic_text)
+        italic.clicked.connect(lambda x: self.format_selection("italic"))
+        toolbar.addWidget(italic)
+
+    def format_selection(self, option: str) -> None:
+        """Apply a specific format to the current selection"""
+        # Create cursor
+        cursor = self.text_edit.textCursor()
+        # Select text
+        selected_text = cursor.selectedText()
+        if selected_text:
+            if option == "bold":
+                self.toggle_bold(cursor)
+            elif option == "italic":
+                self.toggle_italic(cursor)
+        else:
+            print("No tienes ningún texto seleccionado")
+
+    def toggle_bold(self, cursor):
+        """Set/Unset Bold formatting to the selected text"""
+        fmt = QTextCharFormat()
+        fmt.setFontWeight(QFont.Normal if cursor.charFormat().fontWeight() == QFont.Bold else QFont.Bold)
+        # Apply to the selected text
+        self.text_edit.mergeCurrentCharFormat(fmt)
+
+    def toggle_italic(self, cursor):
+        """Set/Unset Italic formatting to the selected text"""
+        fmt = QTextCharFormat()
+        fmt.setFontItalic(not cursor.charFormat().fontItalic())
+        # Apply to the selected text
+        self.text_edit.mergeCurrentCharFormat(fmt)
