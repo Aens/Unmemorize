@@ -9,7 +9,7 @@ from source.GuiNotesTab import NotesTab
 from source.GuiPrivateNotesTab import PrivateNotesTab
 from source.GuiSettingsTab import SettingsTab
 
-__VERSION__ = "v0.6"
+__VERSION__ = "v0.7"
 __AUTHOR__ = "Alex"
 RESOURCES = Path.cwd().joinpath("resources")
 
@@ -25,6 +25,12 @@ class GUI(QtWidgets.QMainWindow):
         self.notepad.add_gui_pointer(self)  # Reverse pointer to our gui
         self.setWindowIcon(QIcon(str(RESOURCES.joinpath("MainIcon.png"))))
         self.setWindowTitle(f"Unmemorize {__VERSION__} by {__AUTHOR__}")
+        # Statusbar
+        self.statusbar_default_themes = {
+                0: "background-color: #E9E9E9; color: black;",  # Gray theme
+                1: "background-color: #46494F; color: white;",  # Dark theme
+                2: "background-color: #A6D8FF; color: black;",  # Blue theme
+                3: "background-color: #58886B; color: black;"}  # Green theme
         self.statusBar = self.statusBar()
         # Create the tabs
         self.tab_widget = QTabWidget(self)
@@ -42,6 +48,7 @@ class GUI(QtWidgets.QMainWindow):
         self.private_notes = PrivateNotesTab(self)
         # Set it to the main gui
         self.setCentralWidget(self.tab_widget)
+        self.show_in_statusbar("Programa Listo")
 
     def eventFilter(self, watched, event):
         """Event filter to handle events on the main window"""
@@ -53,9 +60,16 @@ class GUI(QtWidgets.QMainWindow):
                 self.settings.save_program_config()  # Store the window size to the config file
         return super().eventFilter(watched, event)
 
-    def show_in_statusbar(self, message: str) -> None:
+    def show_in_statusbar(self, message: str, mode: str = None) -> None:
         """Show something in the statusbar for a little bit"""
-        # self.statusBar.setStyleSheet("background-color: darkgreen;")
+        # Themed modes
+        if mode is None:
+            self.statusBar.setStyleSheet(self.statusbar_default_themes[self.settings.THEME])
+        # Set special modes
+        elif mode == "error":
+            self.statusBar.setStyleSheet("background-color: darkred; color: white;")
+        elif mode == "nothing":
+            self.statusBar.setStyleSheet("")
         self.statusBar.showMessage(f"{datetime.now().strftime('%H:%M:%S')} - {message}")
 
     def show_popup(self, message: str) -> None:

@@ -157,6 +157,7 @@ class SettingsTab:
             stylesheet = file.read()
         self.THEME = style
         self.gui.app.setStyleSheet(stylesheet)
+        self.gui.show_in_statusbar(f"Paleta de colores cambiada a: {mapped_options[str(style)]}", mode="nothing")
 
     def change_notes_layout(self, style: int) -> None:
         """Change the layout of the notes: horizontal or vertical"""

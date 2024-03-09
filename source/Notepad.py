@@ -35,7 +35,8 @@ class Notepad:
         """Adds a new note"""
         new_note_path = self.folderpath.joinpath(f"{new_name}.txt")
         if new_note_path.exists():
-            self.gui.show_popup("Error, esa nota ya existe")
+            self.gui.show_popup("Error, ese nombre de nota ya existe")
+            self.gui.show_in_statusbar("ERROR: ese nombre de nota ya existe", mode="error")
             return
         else:
             try:
@@ -97,7 +98,8 @@ class SQLNotepad:
     def add_note(self, new_name):
         """Adds a new note to the database"""
         if new_name in self.notes:
-            self.gui.show_popup("Error, esa nota ya existe")
+            self.gui.show_popup("Error, ese nombre de nota ya existe")
+            self.gui.show_in_statusbar("ERROR: Nota no creada, el nombre ya existía.", mode="error")
             return
         else:
             try:
