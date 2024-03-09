@@ -1,6 +1,6 @@
 -- EASY --
 Button to add a timestamp into the text, where the cursor is.
-Markdown and different styles in notes
+Abbility to create bullet points in notes, and underline
 Set shortcuts for the WISIWYG editor once implemented
 -- MEDIUM --
 minimum size for each note, both width and height (with too many, on vertical mode they are just tiny)

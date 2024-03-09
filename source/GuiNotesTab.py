@@ -294,12 +294,20 @@ class NewWindow(QDialog):
         toolbar.addWidget(bold)
 
         # Italic Button
-        italic = QtWidgets.QPushButton("I", self)
+        italic = QtWidgets.QPushButton("i", self)
         italic_text = QFont()
         italic_text.setItalic(True)
         italic.setFont(italic_text)
         italic.clicked.connect(lambda x: self.format_selection("italic"))
         toolbar.addWidget(italic)
+
+        # Italic Button
+        underline = QtWidgets.QPushButton("u", self)
+        underline_text = QFont()
+        underline_text.setUnderline(True)
+        underline.setFont(underline_text)
+        underline.clicked.connect(lambda x: self.format_selection("underline"))
+        toolbar.addWidget(underline)
 
     def format_selection(self, option: str) -> None:
         """Apply a specific format to the current selection"""
@@ -312,6 +320,8 @@ class NewWindow(QDialog):
                 self.toggle_bold(cursor)
             elif option == "italic":
                 self.toggle_italic(cursor)
+            elif option == "underline":
+                self.toggle_underline(cursor)
         else:
             print("No tienes ningún texto seleccionado")
 
@@ -326,5 +336,12 @@ class NewWindow(QDialog):
         """Set/Unset Italic formatting to the selected text"""
         fmt = QTextCharFormat()
         fmt.setFontItalic(not cursor.charFormat().fontItalic())
+        # Apply to the selected text
+        self.text_edit.mergeCurrentCharFormat(fmt)
+
+    def toggle_underline(self, cursor):
+        """Set/Unset Underline formatting to the selected text"""
+        fmt = QTextCharFormat()
+        fmt.setFontUnderline(not cursor.charFormat().fontUnderline())
         # Apply to the selected text
         self.text_edit.mergeCurrentCharFormat(fmt)
