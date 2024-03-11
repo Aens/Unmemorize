@@ -322,6 +322,18 @@ class NewWindow(QDialog):
         background_color.clicked.connect(lambda x: self.format_selection("background_color"))
         toolbar.addWidget(background_color)
 
+        # Decrease Font Size Button
+        decrease_size = QPushButton("size", self)
+        decrease_size.setStyleSheet("font-size: 6pt;")
+        decrease_size.clicked.connect(lambda x: self.format_selection("decrease_size"))
+        toolbar.addWidget(decrease_size)
+
+        # Increase Font Size Button
+        increase_size = QPushButton("size", self)
+        increase_size.setStyleSheet("font-size: 12pt;")
+        increase_size.clicked.connect(lambda x: self.format_selection("increase_size"))
+        toolbar.addWidget(increase_size)
+
     def format_selection(self, option: str) -> None:
         """Apply a specific format to the current selection"""
         # Create cursor
@@ -329,54 +341,65 @@ class NewWindow(QDialog):
         # Select text
         selected_text = cursor.selectedText()
         if selected_text:
+            # Choose the formatting
+            fmt = QTextCharFormat()
             if option == "bold":
-                self.toggle_bold(cursor)
+                self.toggle_bold(cursor, fmt)
             elif option == "italic":
-                self.toggle_italic(cursor)
+                self.toggle_italic(cursor, fmt)
             elif option == "underline":
-                self.toggle_underline(cursor)
+                self.toggle_underline(cursor, fmt)
             elif option == "foreground_color":
-                self.set_foreground_to_selection(cursor)
+                self.set_foreground_to_selection(fmt)
             elif option == "background_color":
-                self.set_background_to_selection(cursor)
+                self.set_background_to_selection(fmt)
+            elif option == "decrease_size":
+                self.decrease_size(fmt)
+            elif option == "increase_size":
+                self.increase_size(fmt)
+            # Apply formatting to the selected text
+            if fmt is not None:
+                self.text_edit.mergeCurrentCharFormat(fmt)
         else:
             print("No tienes ningún texto seleccionado")
 
-    def toggle_bold(self, cursor) -> None:
+    @staticmethod
+    def toggle_bold(cursor, fmt) -> None:
         """Set/Unset Bold formatting to the selected text"""
-        fmt = QTextCharFormat()
         fmt.setFontWeight(QFont.Normal if cursor.charFormat().fontWeight() == QFont.Bold else QFont.Bold)
-        # Apply to the selected text
-        self.text_edit.mergeCurrentCharFormat(fmt)
 
-    def toggle_italic(self, cursor) -> None:
+    @staticmethod
+    def toggle_italic(cursor, fmt) -> None:
         """Set/Unset Italic formatting to the selected text"""
-        fmt = QTextCharFormat()
         fmt.setFontItalic(not cursor.charFormat().fontItalic())
-        # Apply to the selected text
-        self.text_edit.mergeCurrentCharFormat(fmt)
 
-    def toggle_underline(self, cursor) -> None:
+    @staticmethod
+    def toggle_underline(cursor, fmt) -> None:
         """Set/Unset Underline formatting to the selected text"""
-        fmt = QTextCharFormat()
         fmt.setFontUnderline(not cursor.charFormat().fontUnderline())
-        # Apply to the selected text
-        self.text_edit.mergeCurrentCharFormat(fmt)
 
-    def set_foreground_to_selection(self, cursor) -> None:
+    @staticmethod
+    def set_foreground_to_selection(fmt) -> None:
         """Set a specific foreground color to the selected text"""
         color = QColorDialog.getColor()
         if color.isValid():
-            fmt = QTextCharFormat()
             fmt.setForeground(color)
-            # Apply to the selected text
-            self.text_edit.mergeCurrentCharFormat(fmt)
 
-    def set_background_to_selection(self, cursor) -> None:
+    @staticmethod
+    def set_background_to_selection(fmt) -> None:
         """Set a specific background color to the selected text"""
         color = QColorDialog.getColor()
         if color.isValid():
-            fmt = QTextCharFormat()
             fmt.setBackground(color)
-            # Apply to the selected text
-            self.text_edit.mergeCurrentCharFormat(fmt)
+
+    def decrease_size(self, fmt) -> None:
+        """Decrease the size of the selected text"""
+        current_font = self.text_edit.currentCharFormat().font()
+        current_font.setPointSize(current_font.pointSize() - 2)  # Decrement the font size
+        fmt.setFont(current_font)
+
+    def increase_size(self, fmt) -> None:
+        """Increase the size of the selected text"""
+        current_font = self.text_edit.currentCharFormat().font()
+        current_font.setPointSize(current_font.pointSize() + 2)  # Increment the font size
+        fmt.setFont(current_font)
