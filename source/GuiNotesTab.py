@@ -2,10 +2,11 @@
 """Code by Aens"""
 import pyperclip
 from datetime import datetime
-from PySide6 import QtWidgets, QtCore
-from PySide6.QtCore import QSize, QPoint, Qt
-from PySide6.QtGui import QTextCharFormat, QFont, QAction
-from PySide6.QtWidgets import QInputDialog, QLineEdit, QDialog
+from PySide6 import QtCore
+from PySide6.QtCore import QSize, QPoint
+from PySide6.QtGui import QTextCharFormat, QFont
+from PySide6.QtWidgets import (QInputDialog, QLineEdit, QDialog, QColorDialog, QGridLayout, QPushButton, QLabel,
+                               QScrollArea, QWidget, QTextEdit, QToolBar)
 
 
 class NotesTab:
@@ -28,21 +29,21 @@ class NotesTab:
 
     def create_notes_tab(self) -> None:
         """Creates the layout and sets it"""
-        main_layout = QtWidgets.QGridLayout(self.this_tab)
+        main_layout = QGridLayout(self.this_tab)
 
         # TOP BUTTONS
         # Add buttons and add them to the layout
-        add_note_button = QtWidgets.QPushButton('Añadir otra nota')
+        add_note_button = QPushButton('Añadir otra nota')
         add_note_button.clicked.connect(self.add_note)
-        deleted_notes_label = QtWidgets.QLabel(
+        deleted_notes_label = QLabel(
             "Las notas borradas no se 'borran', se quedan guardadas en la base de datos "
             "por si acaso borras una importante sin querer.")
         deleted_notes_label.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
 
         # NOTES
-        scroll_area = QtWidgets.QScrollArea(self.gui)
-        scroll_widget = QtWidgets.QWidget(scroll_area)
-        self.notes_scroll_layout = QtWidgets.QGridLayout(scroll_widget)  # <-- pointer to re-populate it
+        scroll_area = QScrollArea(self.gui)
+        scroll_widget = QWidget(scroll_area)
+        self.notes_scroll_layout = QGridLayout(scroll_widget)  # <-- pointer to re-populate it
         scroll_widget.setProperty("notesContainer", True)
         # Build and populate the layout with arbitrary notes
         self.populate_notes_layout(self.notes_scroll_layout)
@@ -55,7 +56,7 @@ class NotesTab:
         scroll_area.setWidgetResizable(True)
         main_layout.addWidget(scroll_area, 1, 0, 1, 3)
 
-    def populate_notes_layout(self, scroll_layout: QtWidgets.QGridLayout) -> None:
+    def populate_notes_layout(self, scroll_layout: QGridLayout) -> None:
         """Populates the notes into the layout"""
         row = 0
         col = 0
@@ -77,29 +78,29 @@ class NotesTab:
                     row = 0
                     col += 1
 
-    def create_note_widget(self, key: str, value: str) -> QtWidgets.QWidget:
+    def create_note_widget(self, key: str, value: str) -> QWidget:
         """Creates a widget with all the data of a note"""
         # 1: Create the note and its layout
-        note = QtWidgets.QWidget()
-        layout = QtWidgets.QGridLayout()
+        note = QWidget()
+        layout = QGridLayout()
 
         # 2: Create the elements
         # Create Label
-        label = QtWidgets.QLabel(f"{key}:")
+        label = QLabel(f"{key}:")
         label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
 
         # Create TextEdit
-        text_edit = QtWidgets.QTextEdit()
+        text_edit = QTextEdit()
         text_edit.setHtml(value)
         text_edit.setReadOnly(False)
         # Connect the leaveEvent signal to the save_note method
         text_edit.leaveEvent = lambda event, name=key, obj=text_edit: self.save_note(event="OnLeave", name=name, obj=obj)
 
         # Create buttons
-        button_open = QtWidgets.QPushButton("🔍")
-        button_copy = QtWidgets.QPushButton("📝")
-        button_save = QtWidgets.QPushButton("💾")
-        button_delete = QtWidgets.QPushButton("❌")
+        button_open = QPushButton("🔍")
+        button_copy = QPushButton("📝")
+        button_save = QPushButton("💾")
+        button_delete = QPushButton("❌")
 
         # Set tooltips
         button_open.setToolTip('Abre esta nota en una ventana más grande')
@@ -138,7 +139,7 @@ class NotesTab:
         for i in reversed(range(self.notes_scroll_layout.count())):
             item = self.notes_scroll_layout.itemAt(i)
             widget = item.widget()
-            if isinstance(widget, QtWidgets.QTextEdit):
+            if isinstance(widget, QTextEdit):
                 widget.disconnect(widget)
             widget.deleteLater()
         # Rebuild the layout
@@ -148,13 +149,13 @@ class NotesTab:
     # BUTTONS #
     ###########
 
-    def open_note(self, name: str, obj: QtWidgets.QTextEdit) -> None:
+    def open_note(self, name: str, obj: QTextEdit) -> None:
         """Copy the note into notepad"""
         new_window = NewWindow(self.gui, notes_tab=self, name=name, text=obj.toHtml())
         new_window.show()
         self.gui.show_in_statusbar(f"Nota '{name}' maximizada.")
 
-    def copy_note(self, name: str, obj: QtWidgets.QTextEdit) -> None:
+    def copy_note(self, name: str, obj: QTextEdit) -> None:
         """Copy the note into notepad"""
         pyperclip.copy(obj.toPlainText())
         self.gui.show_in_statusbar(f"Nota '{name}' copiada al portapapeles.")
@@ -169,7 +170,7 @@ class NotesTab:
             self.gui.show_in_statusbar(f"Nota '{name}' no eliminada. Se ha cancelado el borrado.")
         return confirmation
 
-    def save_note(self, event: str, name: str, obj: QtWidgets.QTextEdit) -> None:
+    def save_note(self, event: str, name: str, obj: QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
         # Capture Events to make sure we only save on specific conditions
         if event == "OnLeave":
@@ -214,16 +215,16 @@ class NewWindow(QDialog):
         self.load_window_config()
 
         # Create TextEdit and Labels
-        label = QtWidgets.QLabel(f"{self.name}:")
+        label = QLabel(f"{self.name}:")
         label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
-        self.text_edit = QtWidgets.QTextEdit(self)
+        self.text_edit = QTextEdit(self)
         self.text_edit.setHtml(text)
         self.text_edit.leaveEvent = lambda event, name=name, obj=self.text_edit: self.notes_tab.save_note(event="OnLeave", name=name, obj=obj)
 
         # Create buttons
-        button_copy = QtWidgets.QPushButton("📝")
-        button_save = QtWidgets.QPushButton("💾")
-        button_delete = QtWidgets.QPushButton("❌")
+        button_copy = QPushButton("📝")
+        button_save = QPushButton("💾")
+        button_delete = QPushButton("❌")
         # Set tooltips
         button_copy.setToolTip('Copia la nota al portapapeles')
         button_save.setToolTip('Guarda la nota de este botón (el resto no serán guardadas)')
@@ -238,7 +239,7 @@ class NewWindow(QDialog):
         button_copy.clicked.connect(lambda name=self.name, obj=self.text_edit: self.notes_tab.copy_note(name, obj))
 
         # Layout for the new window
-        layout = QtWidgets.QGridLayout(self)  # <-- pointer to re-populate it
+        layout = QGridLayout(self)  # <-- pointer to re-populate it
         # Add buttons into the layout (element, row, col, IDK, spans this many columns)
         layout.addWidget(label, 0, 0, 1, 1)
         layout.addWidget(button_copy, 0, 1, 1, 1)
@@ -282,11 +283,11 @@ class NewWindow(QDialog):
     def add_format_editor(self):
         """Create the Formatting Editor"""
         # Create a toolbar
-        toolbar = QtWidgets.QToolBar("Formatting Toolbar", self)
+        toolbar = QToolBar("Formatting Toolbar", self)
         self.layout().addWidget(toolbar)
 
         # Bold Button
-        bold = QtWidgets.QPushButton("B", self)
+        bold = QPushButton("B", self)
         bold_text = QFont()
         bold_text.setBold(True)
         bold.setFont(bold_text)
@@ -294,7 +295,7 @@ class NewWindow(QDialog):
         toolbar.addWidget(bold)
 
         # Italic Button
-        italic = QtWidgets.QPushButton("i", self)
+        italic = QPushButton("i", self)
         italic_text = QFont()
         italic_text.setItalic(True)
         italic.setFont(italic_text)
@@ -302,12 +303,24 @@ class NewWindow(QDialog):
         toolbar.addWidget(italic)
 
         # Italic Button
-        underline = QtWidgets.QPushButton("u", self)
+        underline = QPushButton("u", self)
         underline_text = QFont()
         underline_text.setUnderline(True)
         underline.setFont(underline_text)
         underline.clicked.connect(lambda x: self.format_selection("underline"))
         toolbar.addWidget(underline)
+
+        # Foreground Color Button
+        foreground_color = QPushButton("Color", self)
+        foreground_color.setStyleSheet("color: #ff0000;")
+        foreground_color.clicked.connect(lambda x: self.format_selection("foreground_color"))
+        toolbar.addWidget(foreground_color)
+
+        # Background Color Button
+        background_color = QPushButton("Fondo", self)
+        background_color.setStyleSheet("background-color: #440000;")
+        background_color.clicked.connect(lambda x: self.format_selection("background_color"))
+        toolbar.addWidget(background_color)
 
     def format_selection(self, option: str) -> None:
         """Apply a specific format to the current selection"""
@@ -322,26 +335,48 @@ class NewWindow(QDialog):
                 self.toggle_italic(cursor)
             elif option == "underline":
                 self.toggle_underline(cursor)
+            elif option == "foreground_color":
+                self.set_foreground_to_selection(cursor)
+            elif option == "background_color":
+                self.set_background_to_selection(cursor)
         else:
             print("No tienes ningún texto seleccionado")
 
-    def toggle_bold(self, cursor):
+    def toggle_bold(self, cursor) -> None:
         """Set/Unset Bold formatting to the selected text"""
         fmt = QTextCharFormat()
         fmt.setFontWeight(QFont.Normal if cursor.charFormat().fontWeight() == QFont.Bold else QFont.Bold)
         # Apply to the selected text
         self.text_edit.mergeCurrentCharFormat(fmt)
 
-    def toggle_italic(self, cursor):
+    def toggle_italic(self, cursor) -> None:
         """Set/Unset Italic formatting to the selected text"""
         fmt = QTextCharFormat()
         fmt.setFontItalic(not cursor.charFormat().fontItalic())
         # Apply to the selected text
         self.text_edit.mergeCurrentCharFormat(fmt)
 
-    def toggle_underline(self, cursor):
+    def toggle_underline(self, cursor) -> None:
         """Set/Unset Underline formatting to the selected text"""
         fmt = QTextCharFormat()
         fmt.setFontUnderline(not cursor.charFormat().fontUnderline())
         # Apply to the selected text
         self.text_edit.mergeCurrentCharFormat(fmt)
+
+    def set_foreground_to_selection(self, cursor) -> None:
+        """Set a specific foreground color to the selected text"""
+        color = QColorDialog.getColor()
+        if color.isValid():
+            fmt = QTextCharFormat()
+            fmt.setForeground(color)
+            # Apply to the selected text
+            self.text_edit.mergeCurrentCharFormat(fmt)
+
+    def set_background_to_selection(self, cursor) -> None:
+        """Set a specific background color to the selected text"""
+        color = QColorDialog.getColor()
+        if color.isValid():
+            fmt = QTextCharFormat()
+            fmt.setBackground(color)
+            # Apply to the selected text
+            self.text_edit.mergeCurrentCharFormat(fmt)
