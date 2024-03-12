@@ -6,7 +6,7 @@ from PySide6 import QtCore
 from PySide6.QtCore import QSize, QPoint
 from PySide6.QtGui import QTextCharFormat, QFont, QTextListFormat, QTextBlockFormat
 from PySide6.QtWidgets import (QInputDialog, QLineEdit, QDialog, QColorDialog, QGridLayout, QPushButton, QLabel,
-                               QScrollArea, QWidget, QTextEdit, QToolBar)
+                               QScrollArea, QWidget, QTextEdit, QToolBar, QFontComboBox)
 
 
 class NotesTab:
@@ -342,6 +342,11 @@ class NewWindow(QDialog):
         decimal_list.clicked.connect(lambda x: self.format_selection("decimal_list"))
         toolbar.addWidget(decimal_list)
 
+        # Font ComboBox
+        font_combo = QFontComboBox(self)
+        font_combo.currentFontChanged.connect(self.set_font)
+        toolbar.addWidget(font_combo)
+
     def format_selection(self, option: str) -> None:
         """Apply a specific format to the current selection"""
         # Create cursor
@@ -434,16 +439,14 @@ class NewWindow(QDialog):
             list_format.setStyle(mode)
             cursor.createList(list_format)
 
-
-
-    # To add: Font
-
-        # # Font ComboBox
-        # font_combo = QtWidgets.QFontComboBox(self)
-        # font_combo.currentFontChanged.connect(self.set_font)
-        # toolbar.addWidget(font_combo)
-
-        # def set_font(self, font):
-        #     cursor = self.text_edit.textCursor()
-        #     cursor.mergeCharFormat(QTextCharFormat().setFont(font))
-        #     self.text_edit.mergeCurrentCharFormat(QTextCharFormat().setFont(font))
+    def set_font(self, font):
+        """Set a specific font to the selected text. Programmed differently to capture font"""
+        # Create cursor
+        cursor = self.text_edit.textCursor()
+        # Select text
+        selected_text = cursor.selectedText()
+        if selected_text:
+            new_font = QTextCharFormat()
+            new_font.setFont(font)
+            cursor.mergeCharFormat(new_font)
+        # todo analyze if we can capture the font otherwise to get this into format_selection
