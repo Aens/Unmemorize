@@ -4,7 +4,7 @@ import pyperclip
 from datetime import datetime
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QPoint
-from PySide6.QtGui import QTextCharFormat, QFont, QTextListFormat, QTextBlockFormat, QTextCursor
+from PySide6.QtGui import QTextCharFormat, QFont, QTextListFormat, QTextBlockFormat, QTextCursor, QColor, Qt
 from PySide6.QtWidgets import (QInputDialog, QLineEdit, QDialog, QColorDialog, QGridLayout, QPushButton, QLabel,
                                QScrollArea, QWidget, QTextEdit, QToolBar, QFontComboBox, QSizePolicy)
 
@@ -335,6 +335,20 @@ class NewWindow(QDialog):
         spacer2.setFixedSize(10, 20)
         toolbar.addWidget(spacer2)
 
+        # Background Color Red Button
+        background_color_red = QPushButton("", self)
+        background_color_red.setFixedWidth(20)
+        background_color_red.setStyleSheet("background-color: #FF0000;")
+        background_color_red.clicked.connect(lambda x: self.format_selection("background_color", QColor(Qt.red)))
+        toolbar.addWidget(background_color_red)
+
+        # Background Color Green Button
+        background_color_green = QPushButton("", self)
+        background_color_green.setFixedWidth(20)
+        background_color_green.setStyleSheet("background-color: #00FF00;")
+        background_color_green.clicked.connect(lambda x: self.format_selection("background_color", QColor(Qt.green)))
+        toolbar.addWidget(background_color_green)
+
         # Foreground Color Button
         foreground_color = QPushButton("Color", self)
         foreground_color.setFixedWidth(50)
@@ -382,23 +396,23 @@ class NewWindow(QDialog):
         spacer5.setFixedSize(10, 20)
         toolbar.addWidget(spacer5)
 
-        # Timestamp Full Button
+        # Timestamp Date Button
         timestamp = QPushButton("date", self)
         timestamp.setFixedWidth(40)
         timestamp.clicked.connect(lambda x: self.add_timestamp(mode="date"))
         toolbar.addWidget(timestamp)
 
-        # Timestamp Reduced Button
+        # Timestamp Time Button
         timestamp2 = QPushButton("time", self)
         timestamp2.setFixedWidth(40)
         timestamp2.clicked.connect(lambda x: self.add_timestamp(mode="time"))
         toolbar.addWidget(timestamp2)
 
-        # Timestamp Reduced Button
-        timestamp2 = QPushButton("both", self)
-        timestamp2.setFixedWidth(40)
-        timestamp2.clicked.connect(lambda x: self.add_timestamp(mode="full"))
-        toolbar.addWidget(timestamp2)
+        # Timestamp Both Button
+        timestamp3 = QPushButton("both", self)
+        timestamp3.setFixedWidth(40)
+        timestamp3.clicked.connect(lambda x: self.add_timestamp(mode="full"))
+        toolbar.addWidget(timestamp3)
 
         # Add space between buttons
         spacer6 = QWidget()
@@ -410,7 +424,7 @@ class NewWindow(QDialog):
         font_combo.currentFontChanged.connect(self.set_font)
         toolbar.addWidget(font_combo)
 
-    def format_selection(self, option: str) -> None:
+    def format_selection(self, option: str, params=None) -> None:
         """Apply a specific format to the current selection"""
         # Create cursor
         cursor = self.text_edit.textCursor()
@@ -436,7 +450,7 @@ class NewWindow(QDialog):
                 elif option == "foreground_color":
                     self.set_foreground_to_selection(fmt)
                 elif option == "background_color":
-                    self.set_background_to_selection(fmt)
+                    self.set_background_to_selection(fmt, params)
                 elif option == "decrease_size":
                     self.decrease_size(fmt)
                 elif option == "increase_size":
@@ -470,11 +484,14 @@ class NewWindow(QDialog):
             fmt.setForeground(color)
 
     @staticmethod
-    def set_background_to_selection(fmt: QTextCharFormat) -> None:
+    def set_background_to_selection(fmt: QTextCharFormat, params: QColor) -> None:
         """Set a specific background color to the selected text"""
-        color = QColorDialog.getColor()
-        if color.isValid():
-            fmt.setBackground(color)
+        if params is None:
+            color = QColorDialog.getColor()
+            if color.isValid():
+                fmt.setBackground(color)
+        else:
+            fmt.setBackground(params)
 
     def decrease_size(self, fmt: QTextCharFormat) -> None:
         """Decrease the size of the selected text"""
