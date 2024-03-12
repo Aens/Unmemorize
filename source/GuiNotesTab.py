@@ -4,7 +4,7 @@ import pyperclip
 from datetime import datetime
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QPoint
-from PySide6.QtGui import QTextCharFormat, QFont
+from PySide6.QtGui import QTextCharFormat, QFont, QTextListFormat, QTextBlockFormat
 from PySide6.QtWidgets import (QInputDialog, QLineEdit, QDialog, QColorDialog, QGridLayout, QPushButton, QLabel,
                                QScrollArea, QWidget, QTextEdit, QToolBar)
 
@@ -323,16 +323,24 @@ class NewWindow(QDialog):
         toolbar.addWidget(background_color)
 
         # Decrease Font Size Button
-        decrease_size = QPushButton("size", self)
-        decrease_size.setStyleSheet("font-size: 6pt;")
+        decrease_size = QPushButton("-", self)
         decrease_size.clicked.connect(lambda x: self.format_selection("decrease_size"))
         toolbar.addWidget(decrease_size)
 
         # Increase Font Size Button
-        increase_size = QPushButton("size", self)
-        increase_size.setStyleSheet("font-size: 12pt;")
+        increase_size = QPushButton("+", self)
         increase_size.clicked.connect(lambda x: self.format_selection("increase_size"))
         toolbar.addWidget(increase_size)
+
+        # Bullet Lists Button
+        bullet_list = QPushButton("List *", self)
+        bullet_list.clicked.connect(lambda x: self.format_selection("bullet_list"))
+        toolbar.addWidget(bullet_list)
+
+        # Decimal Lists Button
+        decimal_list = QPushButton("List 1", self)
+        decimal_list.clicked.connect(lambda x: self.format_selection("decimal_list"))
+        toolbar.addWidget(decimal_list)
 
     def format_selection(self, option: str) -> None:
         """Apply a specific format to the current selection"""
@@ -341,25 +349,31 @@ class NewWindow(QDialog):
         # Select text
         selected_text = cursor.selectedText()
         if selected_text:
-            # Choose the formatting
-            fmt = QTextCharFormat()
-            if option == "bold":
-                self.toggle_bold(cursor, fmt)
-            elif option == "italic":
-                self.toggle_italic(cursor, fmt)
-            elif option == "underline":
-                self.toggle_underline(cursor, fmt)
-            elif option == "foreground_color":
-                self.set_foreground_to_selection(fmt)
-            elif option == "background_color":
-                self.set_background_to_selection(fmt)
-            elif option == "decrease_size":
-                self.decrease_size(fmt)
-            elif option == "increase_size":
-                self.increase_size(fmt)
-            # Apply formatting to the selected text
-            if fmt is not None:
-                self.text_edit.mergeCurrentCharFormat(fmt)
+            # Special formatting like lists that don't use QTextChatFormat
+            if option == "bullet_list":
+                self.toggle_bullet_list(cursor, QTextListFormat.ListDisc)
+            elif option == "decimal_list":
+                self.toggle_bullet_list(cursor, QTextListFormat.ListDecimal)
+            else:
+                # Normal formatting options that need a QTextChatFormat
+                fmt = QTextCharFormat()
+                if option == "bold":
+                    self.toggle_bold(cursor, fmt)
+                elif option == "italic":
+                    self.toggle_italic(cursor, fmt)
+                elif option == "underline":
+                    self.toggle_underline(cursor, fmt)
+                elif option == "foreground_color":
+                    self.set_foreground_to_selection(fmt)
+                elif option == "background_color":
+                    self.set_background_to_selection(fmt)
+                elif option == "decrease_size":
+                    self.decrease_size(fmt)
+                elif option == "increase_size":
+                    self.increase_size(fmt)
+                # Apply formatting to the selected text
+                if fmt is not None:
+                    self.text_edit.mergeCurrentCharFormat(fmt)
         else:
             print("No tienes ningún texto seleccionado")
 
@@ -403,3 +417,33 @@ class NewWindow(QDialog):
         current_font = self.text_edit.currentCharFormat().font()
         current_font.setPointSize(current_font.pointSize() + 2)  # Increment the font size
         fmt.setFont(current_font)
+
+    @staticmethod
+    def toggle_bullet_list(cursor, mode) -> None:
+        """Toggle bullet list formatting for the selected text"""
+        # Check if the cursor is positioned inside a list block
+        current_list_format = cursor.currentList()
+        if current_list_format:
+            # Remove list formatting
+            block_fmt = cursor.blockFormat()
+            block_fmt.setObjectIndex(-1)
+            cursor.setBlockFormat(block_fmt)
+        else:
+            # Apply bullet list formatting
+            list_format = QTextListFormat()
+            list_format.setStyle(mode)
+            cursor.createList(list_format)
+
+
+
+    # To add: Font
+
+        # # Font ComboBox
+        # font_combo = QtWidgets.QFontComboBox(self)
+        # font_combo.currentFontChanged.connect(self.set_font)
+        # toolbar.addWidget(font_combo)
+
+        # def set_font(self, font):
+        #     cursor = self.text_edit.textCursor()
+        #     cursor.mergeCharFormat(QTextCharFormat().setFont(font))
+        #     self.text_edit.mergeCurrentCharFormat(QTextCharFormat().setFont(font))
