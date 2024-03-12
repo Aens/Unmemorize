@@ -4,9 +4,9 @@ import pyperclip
 from datetime import datetime
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QPoint
-from PySide6.QtGui import QTextCharFormat, QFont, QTextListFormat, QTextBlockFormat
+from PySide6.QtGui import QTextCharFormat, QFont, QTextListFormat, QTextBlockFormat, QTextCursor
 from PySide6.QtWidgets import (QInputDialog, QLineEdit, QDialog, QColorDialog, QGridLayout, QPushButton, QLabel,
-                               QScrollArea, QWidget, QTextEdit, QToolBar, QFontComboBox)
+                               QScrollArea, QWidget, QTextEdit, QToolBar, QFontComboBox, QSizePolicy)
 
 
 class NotesTab:
@@ -288,6 +288,7 @@ class NewWindow(QDialog):
 
         # Bold Button
         bold = QPushButton("B", self)
+        bold.setFixedWidth(25)
         bold_text = QFont()
         bold_text.setBold(True)
         bold.setFont(bold_text)
@@ -296,6 +297,7 @@ class NewWindow(QDialog):
 
         # Italic Button
         italic = QPushButton("i", self)
+        italic.setFixedWidth(25)
         italic_text = QFont()
         italic_text.setItalic(True)
         italic.setFont(italic_text)
@@ -304,43 +306,104 @@ class NewWindow(QDialog):
 
         # Italic Button
         underline = QPushButton("u", self)
+        underline.setFixedWidth(25)
         underline_text = QFont()
         underline_text.setUnderline(True)
         underline.setFont(underline_text)
         underline.clicked.connect(lambda x: self.format_selection("underline"))
         toolbar.addWidget(underline)
 
+        # Add space between buttons
+        spacer = QWidget()
+        spacer.setFixedSize(10, 20)
+        toolbar.addWidget(spacer)
+
+        # Decrease Font Size Button
+        decrease_size = QPushButton("-", self)
+        decrease_size.setFixedWidth(20)
+        decrease_size.clicked.connect(lambda x: self.format_selection("decrease_size"))
+        toolbar.addWidget(decrease_size)
+
+        # Increase Font Size Button
+        increase_size = QPushButton("+", self)
+        increase_size.setFixedWidth(20)
+        increase_size.clicked.connect(lambda x: self.format_selection("increase_size"))
+        toolbar.addWidget(increase_size)
+
+        # Add space between buttons
+        spacer2 = QWidget()
+        spacer2.setFixedSize(10, 20)
+        toolbar.addWidget(spacer2)
+
         # Foreground Color Button
         foreground_color = QPushButton("Color", self)
+        foreground_color.setFixedWidth(50)
         foreground_color.setStyleSheet("color: #ff0000;")
         foreground_color.clicked.connect(lambda x: self.format_selection("foreground_color"))
         toolbar.addWidget(foreground_color)
 
         # Background Color Button
         background_color = QPushButton("Fondo", self)
+        background_color.setFixedWidth(50)
         background_color.setStyleSheet("background-color: #440000;")
         background_color.clicked.connect(lambda x: self.format_selection("background_color"))
         toolbar.addWidget(background_color)
 
-        # Decrease Font Size Button
-        decrease_size = QPushButton("-", self)
-        decrease_size.clicked.connect(lambda x: self.format_selection("decrease_size"))
-        toolbar.addWidget(decrease_size)
+        # Add space between buttons
+        spacer3 = QWidget()
+        spacer3.setFixedSize(10, 20)
+        toolbar.addWidget(spacer3)
 
-        # Increase Font Size Button
-        increase_size = QPushButton("+", self)
-        increase_size.clicked.connect(lambda x: self.format_selection("increase_size"))
-        toolbar.addWidget(increase_size)
+        # Timestamp Full Button
+        clean_format = QPushButton("clean", self)
+        clean_format.setFixedWidth(50)
+        clean_format.clicked.connect(lambda x: self.format_selection("clean_format"))
+        toolbar.addWidget(clean_format)
+
+        # Add space between buttons
+        spacer4 = QWidget()
+        spacer4.setFixedSize(10, 20)
+        toolbar.addWidget(spacer4)
 
         # Bullet Lists Button
-        bullet_list = QPushButton("List *", self)
+        bullet_list = QPushButton("*", self)
+        bullet_list.setFixedWidth(25)
         bullet_list.clicked.connect(lambda x: self.format_selection("bullet_list"))
         toolbar.addWidget(bullet_list)
 
         # Decimal Lists Button
-        decimal_list = QPushButton("List 1", self)
+        decimal_list = QPushButton("1", self)
+        decimal_list.setFixedWidth(25)
         decimal_list.clicked.connect(lambda x: self.format_selection("decimal_list"))
         toolbar.addWidget(decimal_list)
+
+        # Add space between buttons
+        spacer5 = QWidget()
+        spacer5.setFixedSize(10, 20)
+        toolbar.addWidget(spacer5)
+
+        # Timestamp Full Button
+        timestamp = QPushButton("date", self)
+        timestamp.setFixedWidth(40)
+        timestamp.clicked.connect(lambda x: self.add_timestamp(mode="date"))
+        toolbar.addWidget(timestamp)
+
+        # Timestamp Reduced Button
+        timestamp2 = QPushButton("time", self)
+        timestamp2.setFixedWidth(40)
+        timestamp2.clicked.connect(lambda x: self.add_timestamp(mode="time"))
+        toolbar.addWidget(timestamp2)
+
+        # Timestamp Reduced Button
+        timestamp2 = QPushButton("both", self)
+        timestamp2.setFixedWidth(40)
+        timestamp2.clicked.connect(lambda x: self.add_timestamp(mode="full"))
+        toolbar.addWidget(timestamp2)
+
+        # Add space between buttons
+        spacer6 = QWidget()
+        spacer6.setFixedSize(10, 20)
+        toolbar.addWidget(spacer6)
 
         # Font ComboBox
         font_combo = QFontComboBox(self)
@@ -354,11 +417,13 @@ class NewWindow(QDialog):
         # Select text
         selected_text = cursor.selectedText()
         if selected_text:
-            # Special formatting like lists that don't use QTextChatFormat
+            # Special formatting that don't use QTextChatFormat or we don't have to Merge with Current Format
             if option == "bullet_list":
                 self.toggle_bullet_list(cursor, QTextListFormat.ListDisc)
             elif option == "decimal_list":
                 self.toggle_bullet_list(cursor, QTextListFormat.ListDecimal)
+            elif option == "clean_format":
+                self.clean_format()
             else:
                 # Normal formatting options that need a QTextChatFormat
                 fmt = QTextCharFormat()
@@ -383,48 +448,58 @@ class NewWindow(QDialog):
             print("No tienes ningún texto seleccionado")
 
     @staticmethod
-    def toggle_bold(cursor, fmt) -> None:
+    def toggle_bold(cursor, fmt: QTextCharFormat) -> None:
         """Set/Unset Bold formatting to the selected text"""
         fmt.setFontWeight(QFont.Normal if cursor.charFormat().fontWeight() == QFont.Bold else QFont.Bold)
 
     @staticmethod
-    def toggle_italic(cursor, fmt) -> None:
+    def toggle_italic(cursor, fmt: QTextCharFormat) -> None:
         """Set/Unset Italic formatting to the selected text"""
         fmt.setFontItalic(not cursor.charFormat().fontItalic())
 
     @staticmethod
-    def toggle_underline(cursor, fmt) -> None:
+    def toggle_underline(cursor, fmt: QTextCharFormat) -> None:
         """Set/Unset Underline formatting to the selected text"""
         fmt.setFontUnderline(not cursor.charFormat().fontUnderline())
 
     @staticmethod
-    def set_foreground_to_selection(fmt) -> None:
+    def set_foreground_to_selection(fmt: QTextCharFormat) -> None:
         """Set a specific foreground color to the selected text"""
         color = QColorDialog.getColor()
         if color.isValid():
             fmt.setForeground(color)
 
     @staticmethod
-    def set_background_to_selection(fmt) -> None:
+    def set_background_to_selection(fmt: QTextCharFormat) -> None:
         """Set a specific background color to the selected text"""
         color = QColorDialog.getColor()
         if color.isValid():
             fmt.setBackground(color)
 
-    def decrease_size(self, fmt) -> None:
+    def decrease_size(self, fmt: QTextCharFormat) -> None:
         """Decrease the size of the selected text"""
         current_font = self.text_edit.currentCharFormat().font()
         current_font.setPointSize(current_font.pointSize() - 2)  # Decrement the font size
         fmt.setFont(current_font)
 
-    def increase_size(self, fmt) -> None:
+    def increase_size(self, fmt: QTextCharFormat) -> None:
         """Increase the size of the selected text"""
         current_font = self.text_edit.currentCharFormat().font()
         current_font.setPointSize(current_font.pointSize() + 2)  # Increment the font size
         fmt.setFont(current_font)
 
+    def clean_format(self) -> None:
+        """Remove all formatting from the selected text"""
+        """Remove all formatting from the selected text"""
+        cursor = self.text_edit.textCursor()
+        cursor.beginEditBlock()  # Start editing block for undo/redo
+        cursor.setPosition(self.text_edit.textCursor().selectionStart())  # Move to the start of the selection
+        cursor.setPosition(self.text_edit.textCursor().selectionEnd(), QTextCursor.KeepAnchor)  # Expand the selection
+        cursor.setCharFormat(QTextCharFormat())  # Apply an empty format to clear all attributes
+        cursor.endEditBlock()  # End editing block
+
     @staticmethod
-    def toggle_bullet_list(cursor, mode) -> None:
+    def toggle_bullet_list(cursor, mode: QTextListFormat) -> None:
         """Toggle bullet list formatting for the selected text"""
         # Check if the cursor is positioned inside a list block
         current_list_format = cursor.currentList()
@@ -449,4 +524,20 @@ class NewWindow(QDialog):
             new_font = QTextCharFormat()
             new_font.setFont(font)
             cursor.mergeCharFormat(new_font)
-        # todo analyze if we can capture the font otherwise to get this into format_selection
+
+    def add_timestamp(self, mode: str) -> None:
+        """Adds a timestamp where there is text. Ignore selected text"""
+        # Get the current timestamp and format it correctly
+        now = datetime.now()
+        if mode == "full":
+            now = datetime.strftime(now, "%Y-%m-%d %H:%M:%S")
+        elif mode == "time":
+            now = datetime.strftime(now, "%H:%M:%S")
+        elif mode == "date":
+            now = datetime.strftime(now, "%Y-%m-%d")
+        # Create cursor
+        cursor = self.text_edit.textCursor()
+        # Make sure we don't have text selected
+        selected_text = cursor.selectedText()
+        if not selected_text:
+            cursor.insertText(now)
