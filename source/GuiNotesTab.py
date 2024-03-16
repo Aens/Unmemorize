@@ -4,7 +4,7 @@ import pyperclip
 from datetime import datetime
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QPoint
-from PySide6.QtGui import QTextCharFormat, QFont, QTextListFormat, QTextBlockFormat, QTextCursor, QColor, Qt
+from PySide6.QtGui import QTextCharFormat, QFont, QTextListFormat, QTextBlockFormat, QTextCursor, QColor, Qt, QIcon
 from PySide6.QtWidgets import (QInputDialog, QLineEdit, QDialog, QColorDialog, QGridLayout, QPushButton, QLabel,
                                QScrollArea, QWidget, QTextEdit, QToolBar, QFontComboBox, QSizePolicy, QStatusBar)
 
@@ -369,41 +369,37 @@ class NewWindow(QDialog):
 
         # Background Color Red Button
         background_color_red = QPushButton("", self)
-        background_color_red.setFixedWidth(20)
-        background_color_red.setStyleSheet("background-color: #FF0000;")
+        background_color_red.setIcon(QIcon("resources/icon_red.png"))
         background_color_red.clicked.connect(lambda x: self.format_selection("background_color", QColor(Qt.red)))
         background_color_red.setShortcut("Ctrl+Shift+R")
 
         # Background Color Green Button
-        background_color_green = QPushButton("", self)
-        background_color_green.setFixedWidth(20)
-        background_color_green.setStyleSheet("background-color: #00FF00;")
+        background_color_green = QPushButton()
+        background_color_green.setIcon(QIcon("resources/icon_green.png"))
         background_color_green.clicked.connect(lambda x: self.format_selection("background_color", QColor(Qt.green)))
         background_color_green.setShortcut("Ctrl+Shift+G")
 
         # Foreground Color Button
-        foreground_color = QPushButton("Color", self)
-        foreground_color.setFixedWidth(50)
-        foreground_color.setStyleSheet("color: #ff0000;")
+        foreground_color = QPushButton()
+        foreground_color.setIcon(QIcon("resources/icon_foreground_color.png"))
         foreground_color.clicked.connect(lambda x: self.format_selection("foreground_color"))
         foreground_color.setShortcut("Ctrl+Shift+F")
 
         # Background Color Button
-        background_color = QPushButton("Fondo", self)
-        background_color.setFixedWidth(50)
-        background_color.setStyleSheet("background-color: #440000;")
+        background_color = QPushButton()
+        background_color.setIcon(QIcon("resources/icon_background_color.png"))
         background_color.clicked.connect(lambda x: self.format_selection("background_color"))
         background_color.setShortcut("Ctrl+Shift+B")
 
         ###########
         # Cleaner #
         ###########
-        clean_label = QLabel("Eliminar\nFormato")
+        clean_label = QLabel("Limpiar")
         clean_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Clean Formats Button
-        clean_format = QPushButton("clean", self)
-        clean_format.setFixedWidth(50)
+        clean_format = QPushButton()
+        clean_format.setIcon(QIcon("resources/icon_clean_format.png"))
         clean_format.clicked.connect(lambda x: self.format_selection("clean_format"))
         clean_format.setShortcut("Ctrl+Shift+C")
 
@@ -414,38 +410,38 @@ class NewWindow(QDialog):
         list_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Bullet Lists Button
-        bullet_list = QPushButton("*", self)
-        bullet_list.setFixedWidth(25)
+        bullet_list = QPushButton()
+        bullet_list.setIcon(QIcon("resources/icon_bullet_list.png"))
         bullet_list.clicked.connect(lambda x: self.format_selection("bullet_list"))
         bullet_list.setShortcut("Ctrl+L")
 
         # Decimal Lists Button
-        decimal_list = QPushButton("1", self)
-        decimal_list.setFixedWidth(25)
+        decimal_list = QPushButton()
+        decimal_list.setIcon(QIcon("resources/icon_decimal_list.png"))
         decimal_list.clicked.connect(lambda x: self.format_selection("decimal_list"))
         decimal_list.setShortcut("Ctrl+K")
 
         #############
         # Timestamp #
         #############
-        timestamp_label = QLabel("Insertar Fechas")
+        timestamp_label = QLabel("Insertar Fecha y Hora")
         timestamp_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Timestamp Date Button
-        timestamp = QPushButton("date", self)
-        timestamp.setFixedWidth(40)
+        timestamp = QPushButton()
+        timestamp.setIcon(QIcon("resources/icon_date.png"))
         timestamp.clicked.connect(lambda x: self.add_timestamp(mode="date"))
         timestamp.setShortcut("Ctrl+Shift+D")
 
         # Timestamp Time Button
-        timestamp2 = QPushButton("time", self)
-        timestamp2.setFixedWidth(40)
+        timestamp2 = QPushButton()
+        timestamp2.setIcon(QIcon("resources/icon_time.png"))
         timestamp2.clicked.connect(lambda x: self.add_timestamp(mode="time"))
         timestamp2.setShortcut("Ctrl+Shift+T")
 
         # Timestamp Both Button
-        timestamp3 = QPushButton("both", self)
-        timestamp3.setFixedWidth(40)
+        timestamp3 = QPushButton()
+        timestamp3.setIcon(QIcon("resources/icon_fulltime.png"))
         timestamp3.clicked.connect(lambda x: self.add_timestamp(mode="full"))
         timestamp3.setShortcut("Ctrl+Shift+B")
 

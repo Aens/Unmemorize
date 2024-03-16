@@ -1,7 +1,8 @@
 -- EASY --
-Add two more note tabs
-Add a TasksToDo tab
+Complete the Deleted Notes Tab
 -- MEDIUM --
+Complete the Private Notes Tab
+Complete the TasksToDoTab
 Make the shortcuts or the Formatting Editor in the main window available for all notes
 Set a minimum size for each note, both width and height (with too many, on vertical mode they are just tiny)
 Make possible to resize/move the grid splitters (add splitters)

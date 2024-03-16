@@ -36,9 +36,13 @@ class GUI(QtWidgets.QMainWindow):
         self.tab_widget = QTabWidget(self)
         self.notes_tab = QtWidgets.QWidget(self)
         self.private_notes_tab = QtWidgets.QWidget(self)
+        self.deleted_notes_tab = QtWidgets.QWidget(self)
+        self.tasks_tab = QtWidgets.QWidget(self)
         self.settings_tab = QtWidgets.QWidget(self)
         self.tab_widget.addTab(self.notes_tab, "Notas")
         self.tab_widget.addTab(self.private_notes_tab, "Notas Privadas")
+        self.tab_widget.addTab(self.deleted_notes_tab, "Notas Borradas")
+        self.tab_widget.addTab(self.tasks_tab, "Lista de Tareas")
         self.tab_widget.addTab(self.settings_tab, "Opciones")
         # Install an event filter on the main window
         self.installEventFilter(self)
