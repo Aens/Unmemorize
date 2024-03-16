@@ -1,7 +1,6 @@
 -- EASY --
 Set shortcuts for the WISIWYG editor once implemented
-Add two rows of Toolbar, to categorize buttons and add more customs, or a QGridLayout
-Add statusbar to QDialog, to specify when a button fails (if selected, if text is not selected, etc)
+Fix the bug with the statusbar in the QDialog window
 -- MEDIUM --
 minimum size for each note, both width and height (with too many, on vertical mode they are just tiny)
 Make possible to resize/move the grid splitters (add splitters)

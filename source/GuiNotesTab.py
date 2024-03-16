@@ -6,7 +6,7 @@ from PySide6 import QtCore
 from PySide6.QtCore import QSize, QPoint
 from PySide6.QtGui import QTextCharFormat, QFont, QTextListFormat, QTextBlockFormat, QTextCursor, QColor, Qt
 from PySide6.QtWidgets import (QInputDialog, QLineEdit, QDialog, QColorDialog, QGridLayout, QPushButton, QLabel,
-                               QScrollArea, QWidget, QTextEdit, QToolBar, QFontComboBox, QSizePolicy)
+                               QScrollArea, QWidget, QTextEdit, QToolBar, QFontComboBox, QSizePolicy, QStatusBar)
 
 
 class NotesTab:
@@ -238,6 +238,9 @@ class NewWindow(QDialog):
         button_delete.clicked.connect(self.delete_note_from_here)
         button_copy.clicked.connect(lambda name=self.name, obj=self.text_edit: self.notes_tab.copy_note(name, obj))
 
+        # Create a status bar
+        self.statusbar = QStatusBar()
+
         # Layout for the new window
         layout = QGridLayout(self)  # <-- pointer to re-populate it
         # Add buttons into the layout (element, row, col, IDK, spans this many columns)
@@ -249,9 +252,23 @@ class NewWindow(QDialog):
         # Add the bottom Format Editor
         formatbar_layout = self.add_format_editor(layout)
         layout.addWidget(formatbar_layout, 2, 0, 1, 4)
+        # Add the statusbar
+        layout.addWidget(self.statusbar)
         self.setLayout(layout)
         # Install an event filter on these new windows
         self.installEventFilter(self)
+
+    def show_in_statusbar(self, message: str, mode: str = None) -> None:
+        """Show something in the statusbar for a little bit"""
+        # Themed modes
+        if mode is None:
+            self.statusbar.setStyleSheet(self.notes_tab.gui.statusbar_default_themes[self.settings.THEME])
+        # Set special modes
+        elif mode == "error":
+            self.statusbar.setStyleSheet("background-color: darkred; color: white;")
+        elif mode == "nothing":
+            self.statusbar.setStyleSheet("")
+        self.statusbar.showMessage(f"{datetime.now().strftime('%H:%M:%S')} - {message}")
 
     def delete_note_from_here(self):
         """Just close the window after deleting the note"""
@@ -499,8 +516,9 @@ class NewWindow(QDialog):
                 # Apply formatting to the selected text
                 if fmt is not None:
                     self.text_edit.mergeCurrentCharFormat(fmt)
+            self.show_in_statusbar(message=f"Formato {option} aplicado.")
         else:
-            print("No tienes ningún texto seleccionado")
+            self.show_in_statusbar(message="No tienes ningún texto seleccionado.", mode="error")
 
     @staticmethod
     def toggle_bold(cursor, fmt: QTextCharFormat) -> None:
@@ -582,6 +600,9 @@ class NewWindow(QDialog):
             new_font = QTextCharFormat()
             new_font.setFont(font)
             cursor.mergeCharFormat(new_font)
+            self.show_in_statusbar(message=f"Cambio de fuente aplicado.")
+        else:
+            self.show_in_statusbar(message="No tienes ningún texto seleccionado", mode="error")
 
     def add_timestamp(self, mode: str) -> None:
         """Adds a timestamp where there is text. Ignore selected text"""
@@ -599,3 +620,6 @@ class NewWindow(QDialog):
         selected_text = cursor.selectedText()
         if not selected_text:
             cursor.insertText(now)
+            self.show_in_statusbar(message=f"Fecha insertada.")
+        else:
+            self.show_in_statusbar(message="Tienes texto seleccionado. Para insertar fechas, deseleccionalo", mode="error")
