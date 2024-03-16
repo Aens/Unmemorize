@@ -1,6 +1,5 @@
 -- EASY --
 Set shortcuts for the WISIWYG editor once implemented
-Fix the bug with the statusbar in the QDialog window
 -- MEDIUM --
 minimum size for each note, both width and height (with too many, on vertical mode they are just tiny)
 Make possible to resize/move the grid splitters (add splitters)
