@@ -246,11 +246,12 @@ class NewWindow(QDialog):
         layout.addWidget(button_save, 0, 2, 1, 1)
         layout.addWidget(button_delete, 0, 3, 1, 1)
         layout.addWidget(self.text_edit, 1, 0, 1, 4)
+        # Add the bottom Format Editor
+        formatbar_layout = self.add_format_editor(layout)
+        layout.addWidget(formatbar_layout, 2, 0, 1, 4)
         self.setLayout(layout)
         # Install an event filter on these new windows
         self.installEventFilter(self)
-        # Add Format Editor
-        self.add_format_editor()
 
     def delete_note_from_here(self):
         """Just close the window after deleting the note"""
@@ -280,20 +281,27 @@ class NewWindow(QDialog):
     # Format Editor #  This section is entirely experimental
     #################
 
-    def add_format_editor(self):
+    def add_format_editor(self, layout: QGridLayout):
         """Create the Formatting Editor"""
-        # Create a toolbar
-        toolbar = QToolBar("Formatting Toolbar", self)
-        self.layout().addWidget(toolbar)
+        # Create the layout
+        formatbar = QWidget()
+        formatbar.setMaximumSize(QSize(900, 70))
+        formatbar_layout = QGridLayout(self)
+        formatbar.setLayout(formatbar_layout)
+
+        #############
+        # Formating #
+        #############
+        formatting_label = QLabel("Formato")
+        formatting_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Bold Button
-        bold = QPushButton("B", self)
+        bold = QPushButton("B")
         bold.setFixedWidth(25)
         bold_text = QFont()
         bold_text.setBold(True)
         bold.setFont(bold_text)
         bold.clicked.connect(lambda x: self.format_selection("bold"))
-        toolbar.addWidget(bold)
 
         # Italic Button
         italic = QPushButton("i", self)
@@ -302,7 +310,6 @@ class NewWindow(QDialog):
         italic_text.setItalic(True)
         italic.setFont(italic_text)
         italic.clicked.connect(lambda x: self.format_selection("italic"))
-        toolbar.addWidget(italic)
 
         # Italic Button
         underline = QPushButton("u", self)
@@ -311,118 +318,152 @@ class NewWindow(QDialog):
         underline_text.setUnderline(True)
         underline.setFont(underline_text)
         underline.clicked.connect(lambda x: self.format_selection("underline"))
-        toolbar.addWidget(underline)
 
-        # Add space between buttons
-        spacer = QWidget()
-        spacer.setFixedSize(10, 20)
-        toolbar.addWidget(spacer)
+        ########
+        # Size #
+        ########
+        size_label = QLabel("Tamaño")
+        size_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Decrease Font Size Button
         decrease_size = QPushButton("-", self)
         decrease_size.setFixedWidth(20)
         decrease_size.clicked.connect(lambda x: self.format_selection("decrease_size"))
-        toolbar.addWidget(decrease_size)
 
         # Increase Font Size Button
         increase_size = QPushButton("+", self)
         increase_size.setFixedWidth(20)
         increase_size.clicked.connect(lambda x: self.format_selection("increase_size"))
-        toolbar.addWidget(increase_size)
 
-        # Add space between buttons
-        spacer2 = QWidget()
-        spacer2.setFixedSize(10, 20)
-        toolbar.addWidget(spacer2)
+        ############
+        # Coloring #
+        ############
+        color_label = QLabel("Colores")
+        color_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Background Color Red Button
         background_color_red = QPushButton("", self)
         background_color_red.setFixedWidth(20)
         background_color_red.setStyleSheet("background-color: #FF0000;")
         background_color_red.clicked.connect(lambda x: self.format_selection("background_color", QColor(Qt.red)))
-        toolbar.addWidget(background_color_red)
 
         # Background Color Green Button
         background_color_green = QPushButton("", self)
         background_color_green.setFixedWidth(20)
         background_color_green.setStyleSheet("background-color: #00FF00;")
         background_color_green.clicked.connect(lambda x: self.format_selection("background_color", QColor(Qt.green)))
-        toolbar.addWidget(background_color_green)
 
         # Foreground Color Button
         foreground_color = QPushButton("Color", self)
         foreground_color.setFixedWidth(50)
         foreground_color.setStyleSheet("color: #ff0000;")
         foreground_color.clicked.connect(lambda x: self.format_selection("foreground_color"))
-        toolbar.addWidget(foreground_color)
 
         # Background Color Button
         background_color = QPushButton("Fondo", self)
         background_color.setFixedWidth(50)
         background_color.setStyleSheet("background-color: #440000;")
         background_color.clicked.connect(lambda x: self.format_selection("background_color"))
-        toolbar.addWidget(background_color)
 
-        # Add space between buttons
-        spacer3 = QWidget()
-        spacer3.setFixedSize(10, 20)
-        toolbar.addWidget(spacer3)
+        ###########
+        # Cleaner #
+        ###########
+        clean_label = QLabel("Eliminar\nFormato")
+        clean_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Timestamp Full Button
+        # Clean Formats Button
         clean_format = QPushButton("clean", self)
         clean_format.setFixedWidth(50)
         clean_format.clicked.connect(lambda x: self.format_selection("clean_format"))
-        toolbar.addWidget(clean_format)
 
-        # Add space between buttons
-        spacer4 = QWidget()
-        spacer4.setFixedSize(10, 20)
-        toolbar.addWidget(spacer4)
+        #########
+        # Lists #
+        #########
+        list_label = QLabel("Listas")
+        list_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Bullet Lists Button
         bullet_list = QPushButton("*", self)
         bullet_list.setFixedWidth(25)
         bullet_list.clicked.connect(lambda x: self.format_selection("bullet_list"))
-        toolbar.addWidget(bullet_list)
 
         # Decimal Lists Button
         decimal_list = QPushButton("1", self)
         decimal_list.setFixedWidth(25)
         decimal_list.clicked.connect(lambda x: self.format_selection("decimal_list"))
-        toolbar.addWidget(decimal_list)
 
-        # Add space between buttons
-        spacer5 = QWidget()
-        spacer5.setFixedSize(10, 20)
-        toolbar.addWidget(spacer5)
+        #############
+        # Timestamp #
+        #############
+        timestamp_label = QLabel("Fechas")
+        timestamp_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Timestamp Date Button
         timestamp = QPushButton("date", self)
         timestamp.setFixedWidth(40)
         timestamp.clicked.connect(lambda x: self.add_timestamp(mode="date"))
-        toolbar.addWidget(timestamp)
 
         # Timestamp Time Button
         timestamp2 = QPushButton("time", self)
         timestamp2.setFixedWidth(40)
         timestamp2.clicked.connect(lambda x: self.add_timestamp(mode="time"))
-        toolbar.addWidget(timestamp2)
 
         # Timestamp Both Button
         timestamp3 = QPushButton("both", self)
         timestamp3.setFixedWidth(40)
         timestamp3.clicked.connect(lambda x: self.add_timestamp(mode="full"))
-        toolbar.addWidget(timestamp3)
 
-        # Add space between buttons
-        spacer6 = QWidget()
-        spacer6.setFixedSize(10, 20)
-        toolbar.addWidget(spacer6)
+        #############
+        # Font Type #
+        #############
+        font_label = QLabel("Fuente")
+        font_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Font ComboBox
         font_combo = QFontComboBox(self)
         font_combo.currentFontChanged.connect(self.set_font)
-        toolbar.addWidget(font_combo)
+        font_combo.setMinimumSize(200, 20)
+
+        # Set the Layout and return it
+        # First Row
+        formatbar_layout.addWidget(formatting_label, 0, 0, 1, 3)
+        formatbar_layout.addWidget(size_label, 0, 4, 1, 2)
+        formatbar_layout.addWidget(color_label, 0, 7, 1, 5)
+        formatbar_layout.addWidget(clean_label, 0, 12, 1, 1)
+        formatbar_layout.addWidget(list_label, 0, 14, 1, 2)
+        formatbar_layout.addWidget(timestamp_label, 0, 17, 1, 3)
+        formatbar_layout.addWidget(font_label, 0, 21, 1, 1)
+        # Second Row
+        formatbar_layout.addWidget(bold, 1, 0, 1, 1)
+        formatbar_layout.addWidget(italic, 1, 1, 1, 1)
+        formatbar_layout.addWidget(underline, 1, 2, 1, 1)
+        formatbar_layout.addWidget(self.get_spacer(), 1, 3, 1, 1)
+        formatbar_layout.addWidget(decrease_size, 1, 4, 1, 1)
+        formatbar_layout.addWidget(increase_size, 1, 5, 1, 1)
+        formatbar_layout.addWidget(self.get_spacer(), 1, 6, 1, 1)
+        formatbar_layout.addWidget(background_color_red, 1, 7, 1, 1)
+        formatbar_layout.addWidget(background_color_green, 1, 8, 1, 1)
+        formatbar_layout.addWidget(foreground_color, 1, 9, 1, 1)
+        formatbar_layout.addWidget(background_color, 1, 10, 1, 1)
+        formatbar_layout.addWidget(self.get_spacer(), 1, 11, 1, 1)
+        formatbar_layout.addWidget(clean_format, 1, 12, 1, 1)
+        formatbar_layout.addWidget(self.get_spacer(), 1, 13, 1, 1)
+        formatbar_layout.addWidget(bullet_list, 1, 14, 1, 1)
+        formatbar_layout.addWidget(decimal_list, 1, 15, 1, 1)
+        formatbar_layout.addWidget(self.get_spacer(), 1, 16, 1, 1)
+        formatbar_layout.addWidget(timestamp, 1, 17, 1, 1)
+        formatbar_layout.addWidget(timestamp2, 1, 18, 1, 1)
+        formatbar_layout.addWidget(timestamp3, 1, 19, 1, 1)
+        formatbar_layout.addWidget(self.get_spacer(), 1, 20, 1, 1)
+        formatbar_layout.addWidget(font_combo, 1, 21, 1, 1)
+        return formatbar
+
+    @staticmethod
+    def get_spacer() -> QWidget:
+        """Return a spacer"""
+        spacer = QWidget()
+        spacer.setFixedSize(10, 20)
+        return spacer
 
     def format_selection(self, option: str, params=None) -> None:
         """Apply a specific format to the current selection"""
