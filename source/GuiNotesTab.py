@@ -323,6 +323,7 @@ class NewWindow(QDialog):
         bold_text.setBold(True)
         bold.setFont(bold_text)
         bold.clicked.connect(lambda x: self.format_selection("bold"))
+        bold.setShortcut("Ctrl+B")
 
         # Italic Button
         italic = QPushButton("i", self)
@@ -331,6 +332,7 @@ class NewWindow(QDialog):
         italic_text.setItalic(True)
         italic.setFont(italic_text)
         italic.clicked.connect(lambda x: self.format_selection("italic"))
+        italic.setShortcut("Ctrl+I")
 
         # Italic Button
         underline = QPushButton("u", self)
@@ -339,6 +341,7 @@ class NewWindow(QDialog):
         underline_text.setUnderline(True)
         underline.setFont(underline_text)
         underline.clicked.connect(lambda x: self.format_selection("underline"))
+        underline.setShortcut("Ctrl+U")
 
         ########
         # Size #
@@ -350,11 +353,13 @@ class NewWindow(QDialog):
         decrease_size = QPushButton("-", self)
         decrease_size.setFixedWidth(20)
         decrease_size.clicked.connect(lambda x: self.format_selection("decrease_size"))
+        decrease_size.setShortcut("Ctrl+-")
 
         # Increase Font Size Button
         increase_size = QPushButton("+", self)
         increase_size.setFixedWidth(20)
         increase_size.clicked.connect(lambda x: self.format_selection("increase_size"))
+        increase_size.setShortcut("Ctrl++")
 
         ############
         # Coloring #
@@ -367,24 +372,28 @@ class NewWindow(QDialog):
         background_color_red.setFixedWidth(20)
         background_color_red.setStyleSheet("background-color: #FF0000;")
         background_color_red.clicked.connect(lambda x: self.format_selection("background_color", QColor(Qt.red)))
+        background_color_red.setShortcut("Ctrl+Shift+R")
 
         # Background Color Green Button
         background_color_green = QPushButton("", self)
         background_color_green.setFixedWidth(20)
         background_color_green.setStyleSheet("background-color: #00FF00;")
         background_color_green.clicked.connect(lambda x: self.format_selection("background_color", QColor(Qt.green)))
+        background_color_green.setShortcut("Ctrl+Shift+G")
 
         # Foreground Color Button
         foreground_color = QPushButton("Color", self)
         foreground_color.setFixedWidth(50)
         foreground_color.setStyleSheet("color: #ff0000;")
         foreground_color.clicked.connect(lambda x: self.format_selection("foreground_color"))
+        foreground_color.setShortcut("Ctrl+Shift+F")
 
         # Background Color Button
         background_color = QPushButton("Fondo", self)
         background_color.setFixedWidth(50)
         background_color.setStyleSheet("background-color: #440000;")
         background_color.clicked.connect(lambda x: self.format_selection("background_color"))
+        background_color.setShortcut("Ctrl+Shift+B")
 
         ###########
         # Cleaner #
@@ -396,6 +405,7 @@ class NewWindow(QDialog):
         clean_format = QPushButton("clean", self)
         clean_format.setFixedWidth(50)
         clean_format.clicked.connect(lambda x: self.format_selection("clean_format"))
+        clean_format.setShortcut("Ctrl+Shift+C")
 
         #########
         # Lists #
@@ -407,11 +417,13 @@ class NewWindow(QDialog):
         bullet_list = QPushButton("*", self)
         bullet_list.setFixedWidth(25)
         bullet_list.clicked.connect(lambda x: self.format_selection("bullet_list"))
+        bullet_list.setShortcut("Ctrl+L")
 
         # Decimal Lists Button
         decimal_list = QPushButton("1", self)
         decimal_list.setFixedWidth(25)
         decimal_list.clicked.connect(lambda x: self.format_selection("decimal_list"))
+        decimal_list.setShortcut("Ctrl+K")
 
         #############
         # Timestamp #
@@ -423,16 +435,19 @@ class NewWindow(QDialog):
         timestamp = QPushButton("date", self)
         timestamp.setFixedWidth(40)
         timestamp.clicked.connect(lambda x: self.add_timestamp(mode="date"))
+        timestamp.setShortcut("Ctrl+Shift+D")
 
         # Timestamp Time Button
         timestamp2 = QPushButton("time", self)
         timestamp2.setFixedWidth(40)
         timestamp2.clicked.connect(lambda x: self.add_timestamp(mode="time"))
+        timestamp2.setShortcut("Ctrl+Shift+T")
 
         # Timestamp Both Button
         timestamp3 = QPushButton("both", self)
         timestamp3.setFixedWidth(40)
         timestamp3.clicked.connect(lambda x: self.add_timestamp(mode="full"))
+        timestamp3.setShortcut("Ctrl+Shift+B")
 
         #############
         # Font Type #

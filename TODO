@@ -1,8 +1,10 @@
 -- EASY --
-Set shortcuts for the WISIWYG editor once implemented
+Add two more note tabs
+Add a TasksToDo tab
 -- MEDIUM --
-minimum size for each note, both width and height (with too many, on vertical mode they are just tiny)
+Make the shortcuts or the Formatting Editor in the main window available for all notes
+Set a minimum size for each note, both width and height (with too many, on vertical mode they are just tiny)
 Make possible to resize/move the grid splitters (add splitters)
-Maybe Templates in notes?
+Maybe have Templates in notes?
 -- HARD --
-IA capabilities, read your notes and transform them with a custom prompt.
+IA capabilities, read your notes and transform them with a custom prompt using an LLM?
