@@ -240,9 +240,11 @@ class NewWindow(QDialog):
 
         # Create a status bar
         self.statusbar = QStatusBar()
+        self.statusbar.setSizeGripEnabled(False)
 
         # Layout for the new window
         layout = QGridLayout(self)  # <-- pointer to re-populate it
+        layout.setColumnStretch(1, 1)
         # Add buttons into the layout (element, row, col, IDK, spans this many columns)
         layout.addWidget(label, 0, 0, 1, 1)
         layout.addWidget(button_copy, 0, 1, 1, 1)
@@ -253,10 +255,12 @@ class NewWindow(QDialog):
         formatbar_layout = self.add_format_editor(layout)
         layout.addWidget(formatbar_layout, 2, 0, 1, 4)
         # Add the statusbar
-        layout.addWidget(self.statusbar)
+        layout.addWidget(self.statusbar, 3, 0, 1, 4)
         self.setLayout(layout)
         # Install an event filter on these new windows
         self.installEventFilter(self)
+        # Show a message
+        self.show_in_statusbar(message=f"Nota {name} cargada.")
 
     def show_in_statusbar(self, message: str, mode: str = None) -> None:
         """Show something in the statusbar for a little bit"""
@@ -355,7 +359,7 @@ class NewWindow(QDialog):
         ############
         # Coloring #
         ############
-        color_label = QLabel("Colores")
+        color_label = QLabel("Colorear")
         color_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Background Color Red Button
@@ -412,7 +416,7 @@ class NewWindow(QDialog):
         #############
         # Timestamp #
         #############
-        timestamp_label = QLabel("Fechas")
+        timestamp_label = QLabel("Insertar Fechas")
         timestamp_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Timestamp Date Button
