@@ -61,7 +61,7 @@ class NotesTab:
         """Populates the notes into the layout"""
         # Reload notes in memory
         self.notepad.reload_notes()
-        # Populate the layout
+        # Set defaults
         row = 0
         col = 0
         for index, (key, value) in enumerate(self.notepad.notes.items()):
