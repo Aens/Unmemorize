@@ -160,16 +160,16 @@ class NotesTab:
         pyperclip.copy(obj.toPlainText())
         self.gui.show_in_statusbar(f"Nota '{name}' copiada al portapapeles.")
 
-    def delete_note(self, name: str) -> bool:
+    def delete_note(self, name: str):
         """Delete the note and reload the layout"""
-        if confirmation := self.gui.ask_for_confirmation(message=f"Seguro que quieres eliminar la nota llamada: {name}"):
+        confirmation = self.gui.ask_for_confirmation(message=f"Seguro que quieres eliminar la nota: {name}")
+        if confirmation:
             self.notepad.delete_note(name)
             self.notepad.reload_notes()
             self.reload_notes_layout()
             self.gui.deleted_notes.populate_table()
         else:
             self.gui.show_in_statusbar(f"Nota '{name}' no eliminada. Se ha cancelado el borrado.")
-        return confirmation
 
     def save_note(self, event: str, name: str, obj: QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
@@ -220,7 +220,8 @@ class NewWindow(QDialog):
         label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
         self.text_edit = QTextEdit(self)
         self.text_edit.setHtml(text)
-        self.text_edit.leaveEvent = lambda event, name=name, obj=self.text_edit: self.notes_tab.save_note(event="OnLeave", name=name, obj=obj)
+        self.text_edit.leaveEvent = (lambda event, _name=name, obj=self.text_edit:  # <-- params
+                                     self.notes_tab.save_note(event="OnLeave", name=_name, obj=obj))  # <-- call
 
         # Create buttons
         button_copy = QPushButton("📝")
@@ -235,9 +236,11 @@ class NewWindow(QDialog):
         button_copy.setFixedSize(30, 30)
         button_delete.setFixedSize(30, 30)
         # Connect buttons to functions
-        button_save.clicked.connect(lambda name=self.name, obj=self.text_edit: self.notes_tab.save_note("OnButtonSave", name, obj))
+        button_save.clicked.connect(lambda _name=self.name, obj=self.text_edit:  # <-- params
+                                    self.notes_tab.save_note("OnButtonSave", _name, obj))  # <-- call
         button_delete.clicked.connect(self.delete_note_from_here)
-        button_copy.clicked.connect(lambda name=self.name, obj=self.text_edit: self.notes_tab.copy_note(name, obj))
+        button_copy.clicked.connect(lambda _name=self.name, obj=self.text_edit:  # <-- params
+                                    self.notes_tab.copy_note(_name, obj))  # <-- call
 
         # Create a status bar
         self.statusbar = QStatusBar()
