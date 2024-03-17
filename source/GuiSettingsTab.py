@@ -11,7 +11,6 @@ class SettingsTab:
         """Initialize all the options needed for this tab to work"""
         self.gui = gui  # <-- Pointer to the main GUI
         self.this_tab = self.gui.settings_tab  # <-- Pointer to what holds this tab
-        self.notepad = self.gui.notepad  # <-- Pointer for lazyness, to not call the gui all the time
         self.notes_scroll_layout = None  # <-- Pointer so we can reload this tab later
         self.settings_file = QtCore.QSettings('program_settings.ini', QtCore.QSettings.IniFormat)
         # Pointers to some specific elements to call them from outside the constructor

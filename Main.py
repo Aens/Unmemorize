@@ -3,7 +3,7 @@
 from datetime import datetime
 from PySide6.QtWidgets import QApplication
 from pathlib import Path
-from source import Notepad, Gui
+from source import Gui
 import sys
 
 MAIN_FOLDER = Path.cwd()
@@ -12,11 +12,9 @@ MAIN_FOLDER = Path.cwd()
 def loader():
     """Loader"""
     make_sure_folder_exists(MAIN_FOLDER.joinpath("notes"))
-    print(f"{datetime.now()}: Loading virtual Notepad.")
-    notepad = Notepad.SQLNotepad()
     print(f"{datetime.now()}: Load GUIs.")
     app = QApplication(sys.argv)
-    main_window = Gui.GUI(app=app, notepad=notepad)
+    main_window = Gui.GUI(app=app)
     print(f"{datetime.now()}: Executing application endless event loop.")
     main_window.show()
     sys.exit(app.exec())

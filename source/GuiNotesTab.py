@@ -4,9 +4,10 @@ import pyperclip
 from datetime import datetime
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QPoint
-from PySide6.QtGui import QTextCharFormat, QFont, QTextListFormat, QTextBlockFormat, QTextCursor, QColor, Qt, QIcon
+from PySide6.QtGui import QTextCharFormat, QFont, QTextListFormat, QTextCursor, QColor, Qt, QIcon
 from PySide6.QtWidgets import (QInputDialog, QLineEdit, QDialog, QColorDialog, QGridLayout, QPushButton, QLabel,
-                               QScrollArea, QWidget, QTextEdit, QToolBar, QFontComboBox, QSizePolicy, QStatusBar)
+                               QScrollArea, QWidget, QTextEdit, QFontComboBox, QStatusBar)
+from source.Notepad import SQLNotepad
 
 
 class NotesTab:
@@ -17,7 +18,7 @@ class NotesTab:
         self.gui = gui  # <-- Pointer to the main GUI
         self.this_tab = self.gui.notes_tab  # <-- Pointer to what holds this tab
         self.settings = self.gui.settings  # <-- Pointer to the settings tab
-        self.notepad = self.gui.notepad  # <-- Pointer for lazyness, to not call the gui all the time
+        self.notepad = SQLNotepad(self.gui)  # Pointer to our virtual notepad
         self.notes_scroll_layout = None  # <-- Pointer so we can reload this tab later
         # Ready to load stuff
         self.notepad.reload_notes()  # Load the notes in memory
@@ -134,7 +135,6 @@ class NotesTab:
 
     def reload_notes_layout(self) -> None:
         """Reload the layout by destroying it and calling to recreate it"""
-        print(f"{datetime.now()}: Reloading notes layout")
         # Delete existing layout if it does exist
         for i in reversed(range(self.notes_scroll_layout.count())):
             item = self.notes_scroll_layout.itemAt(i)
@@ -166,6 +166,7 @@ class NotesTab:
             self.notepad.delete_note(name)
             self.notepad.reload_notes()
             self.reload_notes_layout()
+            self.gui.deleted_notes.populate_table()
         else:
             self.gui.show_in_statusbar(f"Nota '{name}' no eliminada. Se ha cancelado el borrado.")
         return confirmation

@@ -6,10 +6,11 @@ from PySide6 import QtWidgets, QtCore
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QTabWidget
 from source.GuiNotesTab import NotesTab
+from source.GuiNotesDeletedTab import DeletedNotesTab
 from source.GuiPrivateNotesTab import PrivateNotesTab
 from source.GuiSettingsTab import SettingsTab
 
-__VERSION__ = "v0.8"
+__VERSION__ = "v0.9"
 __AUTHOR__ = "Alex"
 RESOURCES = Path.cwd().joinpath("resources")
 
@@ -17,12 +18,10 @@ RESOURCES = Path.cwd().joinpath("resources")
 class GUI(QtWidgets.QMainWindow):
     """A GUI to control the notes in an easy to manage interface"""
 
-    def __init__(self, app: QApplication, notepad):
+    def __init__(self, app: QApplication):
         """Initialize the window settings, layour and everything"""
         super().__init__()
         self.app = app
-        self.notepad = notepad  # Pointer to our notepad
-        self.notepad.add_gui_pointer(self)  # Reverse pointer to our gui
         self.setWindowIcon(QIcon(str(RESOURCES.joinpath("MainIcon.png"))))
         self.setWindowTitle(f"Unmemorize {__VERSION__} by {__AUTHOR__}")
         # Statusbar
@@ -49,6 +48,7 @@ class GUI(QtWidgets.QMainWindow):
         # Create the Content of those tabs
         self.settings = SettingsTab(self)  # <-- Settings must always be loaded before any other tab
         self.notes = NotesTab(self)
+        self.deleted_notes = DeletedNotesTab(self)
         self.private_notes = PrivateNotesTab(self)
         # Set it to the main gui
         self.setCentralWidget(self.tab_widget)

@@ -13,7 +13,6 @@ class PrivateNotesTab:
         self.gui = gui  # <-- Pointer to the main GUI
         self.this_tab = self.gui.notes_tab  # <-- Pointer to what holds this tab
         self.settings = self.gui.settings  # <-- Pointer to the settings tab
-        self.notepad = self.gui.notepad  # <-- Pointer for lazyness, to not call the gui all the time
         # self.private_notes_scroll_layout = None  # <-- Pointer so we can reload this tab later  # TODO FIX
         # Ready to load stuff
         # self.notepad.reload_notes("private")  # Load the notes in memory  # TODO fix this
