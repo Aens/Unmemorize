@@ -21,7 +21,6 @@ class NotesTab:
         self.notepad = SQLNotepad(self.gui)  # Pointer to our virtual notepad
         self.notes_scroll_layout = None  # <-- Pointer so we can reload this tab later
         # Ready to load stuff
-        self.notepad.reload_notes()  # Load the notes in memory
         self.create_notes_tab()  # Create the note tabs populating info from that memory
 
     ##########
@@ -30,6 +29,7 @@ class NotesTab:
 
     def create_notes_tab(self) -> None:
         """Creates the layout and sets it"""
+        # Create the layout
         main_layout = QGridLayout(self.this_tab)
 
         # TOP BUTTONS
@@ -59,6 +59,9 @@ class NotesTab:
 
     def populate_notes_layout(self, scroll_layout: QGridLayout) -> None:
         """Populates the notes into the layout"""
+        # Reload notes in memory
+        self.notepad.reload_notes()
+        # Populate the layout
         row = 0
         col = 0
         for index, (key, value) in enumerate(self.notepad.notes.items()):
@@ -165,7 +168,6 @@ class NotesTab:
         confirmation = self.gui.ask_for_confirmation(message=f"Seguro que quieres eliminar la nota: {name}")
         if confirmation:
             self.notepad.delete_note(name)
-            self.notepad.reload_notes()
             self.reload_notes_layout()
             self.gui.deleted_notes.populate_table()
         else:
@@ -186,7 +188,6 @@ class NotesTab:
             return   # DON'T save as it's not needed
         # If we made it this far, okay, go ahead and save the note
         self.notepad.save_note(filename=name, value=value)
-        self.notepad.reload_notes()
         self.reload_notes_layout()
 
     def add_note(self) -> None:
@@ -197,7 +198,6 @@ class NotesTab:
             # Create that file
             self.notepad.add_note(name)
             # Reload notes and layout to also show the new file
-            self.notepad.reload_notes()
             self.reload_notes_layout()
         else:
             self.gui.show_popup("Creación de Nota cancelada.")

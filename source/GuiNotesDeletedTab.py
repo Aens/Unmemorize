@@ -75,6 +75,5 @@ class DeletedNotesTab:
     def restore_note(self, name: str):
         """Restore a note from the deleted section"""
         self.notepad.restore_note(name)
-        self.gui.notes.notepad.reload_notes()
         self.gui.notes.reload_notes_layout()
         self.populate_table()
