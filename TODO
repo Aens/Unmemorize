@@ -1,6 +1,5 @@
 -- EASY --
 Fix the background issue on QTableWidgets
-Find a way to show the data in deleted notes tab, the HTML part is not readable
 -- MEDIUM --
 Complete the Private Notes Tab
 Complete the TasksToDoTab

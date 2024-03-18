@@ -163,7 +163,7 @@ class NotesTab:
         pyperclip.copy(obj.toPlainText())
         self.gui.show_in_statusbar(f"Nota '{name}' copiada al portapapeles.")
 
-    def delete_note(self, name: str):
+    def delete_note(self, name: str) -> bool:
         """Delete the note and reload the layout"""
         confirmation = self.gui.ask_for_confirmation(message=f"Seguro que quieres eliminar la nota: {name}")
         if confirmation:
@@ -172,6 +172,7 @@ class NotesTab:
             self.gui.deleted_notes.populate_table()
         else:
             self.gui.show_in_statusbar(f"Nota '{name}' no eliminada. Se ha cancelado el borrado.")
+        return confirmation  # Needed to close floating note if deleted from there
 
     def save_note(self, event: str, name: str, obj: QTextEdit) -> None:
         """Save the text on the note and reload the layout"""

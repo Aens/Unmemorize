@@ -1,7 +1,7 @@
 # coding=utf-8
 """Code by Aens"""
 from PySide6 import QtWidgets
-from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QPushButton, QHeaderView
+from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QPushButton, QHeaderView, QTextBrowser
 
 
 class DeletedNotesTab:
@@ -43,21 +43,28 @@ class DeletedNotesTab:
         # Set a fixed amount of rows
         self.notepad.reload_deleted_notes()  # Load the notes in memory
         self.tableWidget.setRowCount(len(self.notepad.deleted_notes))
+        self.tableWidget.verticalHeader().setDefaultSectionSize(40)  # Set height to 50 pixels
         # Iterate over the items that we have deleted
         for i, (key, values) in enumerate(self.notepad.deleted_notes.items()):
+            # Create the items
             name_item = QTableWidgetItem(str(key))
-            content_item = QTableWidgetItem(str(values[0]))
+            content_item = QTableWidgetItem()
             date_item = QTableWidgetItem(str(values[1]))
+            # SPECIAL: Create a QTextBrowser to render HTML content
+            text_browser = QTextBrowser()
+            text_browser.setHtml(values[0])
+            text_browser.setToolTip(values[0])
             # Set the record to the columns
             self.tableWidget.setItem(i, 0, name_item)
             self.tableWidget.setItem(i, 1, content_item)
+            self.tableWidget.setCellWidget(i, 1, text_browser)
             self.tableWidget.setItem(i, 2, date_item)
             # Set the buttons to the third column
             #    We use hackfix as a random param because lambda will CORRUPT the first argument 🙃
             #    so we trick it and use a 2nd one for our only argument
-            restore_button = QPushButton("🧲❎⏮⏪🔁⬅🔄↩🔙")
+            restore_button = QPushButton("⏪")
             restore_button.clicked.connect(lambda hackfix=None, name=key: self.restore_note(name))
-            delete_button = QPushButton("💥❌")
+            delete_button = QPushButton("❌")
             delete_button.clicked.connect(lambda hackfix=None, name=key: self.delete_forever(name))
             # Add buttons to the actual columns
             self.tableWidget.setCellWidget(i, 3, restore_button)
