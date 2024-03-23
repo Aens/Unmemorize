@@ -1,11 +1,17 @@
 -- EASY --
-Fix the background issue on QTableWidgets
+Fix the background issues on QTableWidgets
+Fix the copy to clipboard not copying the formats and colors
+Add a button to explain the shortcuts
+Add a 2nd deep level for lists
 -- MEDIUM --
+Change the primary key from name of note to an autoincremental index. Which means kind of a rework
 Complete the Private Notes Tab
 Complete the TasksToDoTab
 Make the shortcuts or the Formatting Editor in the main window available for all notes
 Set a minimum size for each note, both width and height (with too many, on vertical mode they are just tiny)
 Make possible to resize/move the grid splitters (add splitters)
 Maybe have Templates in notes?
+Backup system
 -- HARD --
+Auto-correct text in multiple languages, or suggestions if a word is badly written
 IA capabilities, read your notes and transform them with a custom prompt using an LLM?
