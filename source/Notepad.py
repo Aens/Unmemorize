@@ -131,10 +131,7 @@ class PrepareDatabase:
             CREATE TABLE IF NOT EXISTS notes 
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT, 
-            content TEXT,
-            test TEXT,
-            otro TEXT,
-            algo TEXT)
+            content TEXT)
             """)
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS notes_deleted 
@@ -161,7 +158,7 @@ class PrepareDatabase:
     def check_if_fixes_are_needed(self) -> None:
         """Check if we have all the needed databases with the correct columns"""
         tables = {
-            "notes":                 ['id', 'title', 'content', "test", "otro", "algo"],
+            "notes":                 ['id', 'title', 'content'],
             "notes_deleted":         ['id', 'title', 'content', 'deleted_at'],
             "private_notes":         ['id', 'title', 'content'],
             "private_notes_deleted": ['id', 'title', 'content', 'deleted_at']
