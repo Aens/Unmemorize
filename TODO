@@ -1,5 +1,5 @@
 -- EASY --
-Send the floating window info to its statusbar
+Send the floating window info to its statusbar, not the main statusbar
 Fix the background issues on QTableWidgets
 Add a button to explain the shortcuts
 Add a 2nd deep level for lists
