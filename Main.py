@@ -4,6 +4,7 @@ from datetime import datetime
 from PySide6.QtWidgets import QApplication
 from pathlib import Path
 from source import Gui
+from source.Notepad import PrepareDatabase
 import sys
 
 MAIN_FOLDER = Path.cwd()
@@ -11,8 +12,10 @@ MAIN_FOLDER = Path.cwd()
 
 def loader():
     """Loader"""
+    print(f"{datetime.now()}: Checking database integration...")
     make_sure_folder_exists(MAIN_FOLDER.joinpath("notes"))
-    print(f"{datetime.now()}: Load GUIs.")
+    PrepareDatabase()
+    print(f"{datetime.now()}: Creating GUI...")
     app = QApplication(sys.argv)
     main_window = Gui.GUI(app=app)
     print(f"{datetime.now()}: Executing application endless event loop.")

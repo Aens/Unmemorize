@@ -4,7 +4,6 @@ Fix the copy to clipboard not copying the formats and colors
 Add a button to explain the shortcuts
 Add a 2nd deep level for lists
 -- MEDIUM --
-Change the primary key from name of note to an autoincremental index. Which means kind of a rework
 Complete the Private Notes Tab
 Complete the TasksToDoTab
 Make the shortcuts or the Formatting Editor in the main window available for all notes
@@ -15,3 +14,4 @@ Backup system
 -- HARD --
 Auto-correct text in multiple languages, or suggestions if a word is badly written
 IA capabilities, read your notes and transform them with a custom prompt using an LLM?
+Deploy this as an .exe file
