@@ -64,9 +64,9 @@ class NotesTab:
         # Set defaults
         row = 0
         col = 0
-        for index, (key, value) in enumerate(self.notepad.notes.items()):
+        for index, (_id, record) in enumerate(self.notepad.notes.items()):
             # Add the current note
-            note = self.create_note_widget(key, value)
+            note = self.create_note_widget(_id, record)
             scroll_layout.addWidget(note, row, col, 1, 1)
             # Choose where to put the next note
             # IF we are in Vertical Endless mode
@@ -82,23 +82,26 @@ class NotesTab:
                     row = 0
                     col += 1
 
-    def create_note_widget(self, key: str, value: str) -> QWidget:
+    def create_note_widget(self, _id: int, record: tuple) -> QWidget:
         """Creates a widget with all the data of a note"""
+        title = record[0]
+        content = record[1]
         # 1: Create the note and its layout
         note = QWidget()
         layout = QGridLayout()
 
         # 2: Create the elements
         # Create Label
-        label = QLabel(f"{key}:")
+        label = QLabel(f"{title}:")
         label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
 
         # Create TextEdit
         text_edit = QTextEdit()
-        text_edit.setHtml(value)
+        text_edit.setHtml(content)
         text_edit.setReadOnly(False)
         # Connect the leaveEvent signal to the save_note method
-        text_edit.leaveEvent = lambda event, name=key, obj=text_edit: self.save_note(event="OnLeave", name=name, obj=obj)
+        text_edit.leaveEvent = (lambda event, note_id=_id, name=title, obj=text_edit:  # <-- Params
+                                self.save_note(event="OnLeave", note_id=note_id, name=name, obj=obj))  # <-- Call
 
         # Create buttons
         button_open = QPushButton("🔍")
@@ -119,10 +122,13 @@ class NotesTab:
         button_delete.setFixedSize(30, 30)
 
         # Connect buttons to functions
-        button_open.clicked.connect(lambda name=key, obj=text_edit: self.open_note(name, obj))
-        button_save.clicked.connect(lambda name=key, obj=text_edit: self.save_note("OnButtonSave", name, obj))
-        button_delete.clicked.connect(lambda name=key, v=value: self.delete_note(name))
-        button_copy.clicked.connect(lambda name=key, obj=text_edit: self.copy_note(name, obj))
+        button_open.clicked.connect(lambda note_id=_id, name=title, obj=text_edit:  # <-- Params
+                                    self.open_note(note_id=note_id, name=name, obj=obj))  # <-- Call
+        button_save.clicked.connect(
+            lambda note_id=_id, name=title, obj=text_edit:  # <-- Params
+            self.save_note(event="OnButtonSave", note_id=note_id, name=name, obj=obj))  # <-- Call
+        button_delete.clicked.connect(lambda note_id=_id, name=title: self.delete_note(note_id=note_id, name=title))
+        button_copy.clicked.connect(lambda name=title, obj=text_edit: self.copy_note(name=name, obj=obj))
 
         # 3: Add elements into the layout.
         # Values mean (element, row, col, row_span, column_span, alignment)
@@ -152,9 +158,9 @@ class NotesTab:
     # BUTTONS #
     ###########
 
-    def open_note(self, name: str, obj: QTextEdit) -> None:
+    def open_note(self, note_id: int, name: str, obj: QTextEdit) -> None:
         """Copy the note into notepad"""
-        new_window = NewWindow(self.gui, notes_tab=self, name=name, text=obj.toHtml())
+        new_window = NewWindow(self.gui, notes_tab=self, note_id=note_id, name=name, text=obj.toHtml())
         new_window.show()
         self.gui.show_in_statusbar(f"Nota '{name}' maximizada.")
 
@@ -163,18 +169,18 @@ class NotesTab:
         pyperclip.copy(obj.toPlainText())
         self.gui.show_in_statusbar(f"Nota '{name}' copiada al portapapeles.")
 
-    def delete_note(self, name: str) -> bool:
+    def delete_note(self, note_id: int, name: str) -> bool:
         """Delete the note and reload the layout"""
         confirmation = self.gui.ask_for_confirmation(message=f"Seguro que quieres eliminar la nota: {name}")
         if confirmation:
-            self.notepad.delete_note(name)
+            self.notepad.delete_note(_id=note_id, name=name)
             self.reload_notes_layout()
             self.gui.deleted_notes.populate_table()
         else:
             self.gui.show_in_statusbar(f"Nota '{name}' no eliminada. Se ha cancelado el borrado.")
         return confirmation  # Needed to close floating note if deleted from there
 
-    def save_note(self, event: str, name: str, obj: QTextEdit) -> None:
+    def save_note(self, event: str, note_id: int, name: str, obj: QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
         # Capture Events to make sure we only save on specific conditions
         if event == "OnLeave":
@@ -185,10 +191,10 @@ class NotesTab:
         # Check if the note for what we triggered the event requires an actual save or nothing changed
         # This is a huge efficiency trick, we don't want thosands of unnecesary reloads on the GUI
         value = obj.toHtml()
-        if value == self.notepad.notes[name]:
+        if value == self.notepad.notes[note_id][1]:
             return   # DON'T save as it's not needed
         # If we made it this far, okay, go ahead and save the note
-        self.notepad.save_note(filename=name, value=value)
+        self.notepad.save_note(_id=note_id, filename=name, value=value)
         self.reload_notes_layout()
 
     def add_note(self) -> None:
@@ -206,12 +212,13 @@ class NotesTab:
 
 class NewWindow(QDialog):
     """Creates the new big window"""
-    def __init__(self, parent=None, notes_tab=None, name=None, text: str = ""):
+    def __init__(self, parent=None, notes_tab=None, note_id: int = None, name: str = None, text: str = ""):
         super().__init__(parent)
         # New window setup
         self.setGeometry(200, 200, 400, 300)
         self.notes_tab = notes_tab
         self.settings = self.notes_tab.settings
+        self.note_id = note_id
         self.name = name
         self.setWindowTitle(f"Nota: {name}")
         self.load_window_config()
@@ -221,8 +228,9 @@ class NewWindow(QDialog):
         label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
         self.text_edit = QTextEdit(self)
         self.text_edit.setHtml(text)
-        self.text_edit.leaveEvent = (lambda event, _name=name, obj=self.text_edit:  # <-- params
-                                     self.notes_tab.save_note(event="OnLeave", name=_name, obj=obj))  # <-- call
+        self.text_edit.leaveEvent = (
+            lambda event, _id=self.note_id, _name=self.name, obj=self.text_edit:  # <-- params
+            self.notes_tab.save_note(event="OnLeave", note_id=note_id, name=_name, obj=obj))  # <-- call
 
         # Create buttons
         button_copy = QPushButton("📝")
@@ -237,12 +245,12 @@ class NewWindow(QDialog):
         button_copy.setFixedSize(30, 30)
         button_delete.setFixedSize(30, 30)
         # Connect buttons to functions
-        button_save.clicked.connect(lambda _name=self.name, obj=self.text_edit:  # <-- params
-                                    self.notes_tab.save_note("OnButtonSave", _name, obj))  # <-- call
+        button_save.clicked.connect(
+            lambda _id=self.note_id, _name=self.name, obj=self.text_edit:  # <-- params
+            self.notes_tab.save_note(event="OnButtonSave", note_id=note_id, name=_name, obj=obj))  # <-- call
         button_delete.clicked.connect(self.delete_note_from_here)
         button_copy.clicked.connect(lambda _name=self.name, obj=self.text_edit:  # <-- params
                                     self.notes_tab.copy_note(_name, obj))  # <-- call
-
         # Create a status bar
         self.statusbar = QStatusBar()
         self.statusbar.setSizeGripEnabled(False)
@@ -281,7 +289,7 @@ class NewWindow(QDialog):
 
     def delete_note_from_here(self):
         """Just close the window after deleting the note"""
-        confirmation = self.notes_tab.delete_note(self.name)
+        confirmation = self.notes_tab.delete_note(note_id=self.note_id, name=self.name)
         if confirmation:
             self.close()
 

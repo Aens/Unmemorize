@@ -1,9 +1,10 @@
 -- EASY --
+Send the floating window info to its statusbar
 Fix the background issues on QTableWidgets
-Fix the copy to clipboard not copying the formats and colors
 Add a button to explain the shortcuts
 Add a 2nd deep level for lists
 -- MEDIUM --
+Fix the copy to clipboard not copying the formats and colors (ToHTML, ToMarkdown and ToPlainText do not do that)
 Complete the Private Notes Tab
 Complete the TasksToDoTab
 Make the shortcuts or the Formatting Editor in the main window available for all notes

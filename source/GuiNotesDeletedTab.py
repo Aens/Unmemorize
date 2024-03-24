@@ -44,17 +44,16 @@ class DeletedNotesTab:
         self.notepad.reload_deleted_notes()  # Load the notes in memory
         self.tableWidget.setRowCount(len(self.notepad.deleted_notes))
         self.tableWidget.verticalHeader().setDefaultSectionSize(40)  # Set height to 50 pixels
-        # Iterate over the items that we have deleted
-        for i, (key, values) in enumerate(self.notepad.deleted_notes.items()):
-            # Create the items
-            name_item = QTableWidgetItem(str(key))
+        # 2 - Iterate over the items that we have deleted
+        for i, (_id, values) in enumerate(self.notepad.deleted_notes.items()):
+            # 2.1 - Create the items
+            name_item = QTableWidgetItem(str(values[0]))
             content_item = QTableWidgetItem()
-            date_item = QTableWidgetItem(str(values[1]))
-            # SPECIAL: Create a QTextBrowser to render HTML content
-            text_browser = QTextBrowser()
-            text_browser.setHtml(values[0])
-            text_browser.setToolTip(values[0])
-            # Set the record to the columns
+            text_browser = QTextBrowser()   # SPECIAL: Create a QTextBrowser to render HTML content
+            text_browser.setHtml(values[1])
+            text_browser.setToolTip(values[1])
+            date_item = QTableWidgetItem(str(values[2]))
+            # 2.2 - Set the record to the columns
             self.tableWidget.setItem(i, 0, name_item)
             self.tableWidget.setItem(i, 1, content_item)
             self.tableWidget.setCellWidget(i, 1, text_browser)
@@ -63,24 +62,26 @@ class DeletedNotesTab:
             #    We use hackfix as a random param because lambda will CORRUPT the first argument 🙃
             #    so we trick it and use a 2nd one for our only argument
             restore_button = QPushButton("⏪")
-            restore_button.clicked.connect(lambda hackfix=None, name=key: self.restore_note(name))
+            restore_button.clicked.connect(lambda hackfix=None, note_id=_id, name=values[0]:  # <-- Params
+                                           self.restore_note(note_id=note_id, name=name))  # <-- Call
             delete_button = QPushButton("❌")
-            delete_button.clicked.connect(lambda hackfix=None, name=key: self.delete_forever(name))
+            delete_button.clicked.connect(lambda hackfix=None, note_id=_id, name=values[0]:  # <-- Params
+                                          self.delete_forever(note_id=note_id, name=name))  # <-- Call
             # Add buttons to the actual columns
             self.tableWidget.setCellWidget(i, 3, restore_button)
             self.tableWidget.setCellWidget(i, 4, delete_button)
 
-    def delete_forever(self, name: str):
+    def delete_forever(self, note_id: int, name: str) -> None:
         """Delete a note forever"""
         confirmation = self.gui.ask_for_confirmation(message=f"¿Borrar PERMANENTEMENTE la nota: {name}?")
         if confirmation:
-            self.notepad.delete_note_forever(name)
+            self.notepad.delete_note_forever(_id=note_id, name=name)
             self.populate_table()
         else:
             self.gui.show_in_statusbar(f"Nota '{name}' no eliminada. Se ha cancelado el borrado.")
 
-    def restore_note(self, name: str):
+    def restore_note(self, note_id: int, name: str) -> None:
         """Restore a note from the deleted section"""
-        self.notepad.restore_note(name)
+        self.notepad.restore_note(_id=note_id, name=name)
         self.gui.notes.reload_notes_layout()
         self.populate_table()

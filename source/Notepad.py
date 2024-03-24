@@ -22,92 +22,87 @@ class SQLNotepad:
     def reload_notes(self):
         """Clean the previous list. Load notes from the database into the class"""
         self.notes.clear()
-        self.cursor.execute('SELECT title, content FROM notes')
+        self.cursor.execute('SELECT id, title, content FROM notes')
         rows = self.cursor.fetchall()
         for row in rows:
-            title, content = row
-            self.notes[title] = content
+            _id, title, content = row
+            self.notes[_id] = (title, content)
 
     def reload_deleted_notes(self):
         """Clean the previous list. Load notes from the database into the class"""
         self.deleted_notes.clear()
-        self.cursor.execute('SELECT title, content, deleted_at FROM notes_deleted')
+        self.cursor.execute('SELECT id, title, content, deleted_at FROM notes_deleted')
         rows = self.cursor.fetchall()
         for row in rows:
-            title, content, deleted_at = row
-            self.deleted_notes[title] = (content, deleted_at)
+            _id, title, content, deleted_at = row
+            self.deleted_notes[_id] = (title, content, deleted_at)
 
-    def add_note(self, new_name):
+    def add_note(self, new_name: str):
         """Adds a new note to the database"""
-        if new_name in self.notes:
-            self.gui.show_popup("Error, ese nombre de nota ya existe.")
-            self.gui.show_in_statusbar("ERROR: Nota no creada, el nombre ya existía.", mode="error")
-            return
-        else:
-            try:
-                # Insert the new note into the database
-                self.cursor.execute('INSERT INTO notes (title, content) '
-                                    'VALUES (?, ?)',
-                                    (new_name, ''))
-                self.connection.commit()
-                self.gui.show_in_statusbar(f"Nota '{new_name}' creada con éxito.")
-            except Exception as e:
-                self.gui.show_in_statusbar(f"ERROR: No he podido crear la nota '{new_name}': {e}", mode="error")
+        try:
+            # Insert the new note into the database
+            self.cursor.execute('INSERT INTO notes (id, title, content) '
+                                'VALUES (NULL, ?, NULL)',
+                                (new_name,))
+            self.connection.commit()
+            self.gui.show_in_statusbar(f"Nota '{new_name}' creada con éxito.")
+        except Exception as e:
+            self.gui.show_in_statusbar(f"ERROR: No he podido crear la nota '{new_name}': {e}", mode="error")
 
-    def save_note(self, filename: str, value: str) -> None:
+    def save_note(self, _id: int, filename: str, value: str) -> None:
         """Saves a note with these new values to the database"""
-        if filename in self.notes:
+        if _id in self.notes:
             try:
                 # Update the content of the existing note in the database
                 self.cursor.execute('UPDATE notes '
                                     'SET content = ? '
-                                    'WHERE title = ?', (value, filename))
+                                    'WHERE id = ?', (value, _id))
                 self.connection.commit()
                 self.gui.show_in_statusbar(f"Nota '{filename}' guardada con éxito.")
             except Exception as e:
                 self.gui.show_in_statusbar(f"ERROR: No he podido guardar la nota '{filename}': {e}", mode="error")
 
-    def delete_note(self, name: str) -> None:
+    def delete_note(self, _id: int, name: str) -> None:
         """It doesn't delete notes, it just moves them to a different table"""
-        if name in self.notes:
+        if _id in self.notes:
             try:
                 deleted_time = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S")
                 # Move the note to a different table
                 self.cursor.execute(f"INSERT INTO notes_deleted (title, content, deleted_at)"
                                     "SELECT title, content, ? "
                                     "FROM notes "
-                                    "WHERE title = ?",
-                                    (deleted_time, name))
+                                    "WHERE id = ?",
+                                    (deleted_time, _id))
                 # Delete the note on this table
-                self.cursor.execute(f"DELETE FROM notes WHERE title = ?", (name,))
+                self.cursor.execute(f"DELETE FROM notes WHERE id = ?", (_id,))
                 self.connection.commit()
                 self.gui.show_in_statusbar(f"Se ha movido la nota: {name} a la tabla de notas borradas")
             except Exception as e:
                 self.gui.show_in_statusbar(f"ERROR: No he podido mover la nota '{name}': {e}", mode="error")
 
-    def delete_note_forever(self, name: str) -> None:
+    def delete_note_forever(self, _id: int, name: str) -> None:
         """Permanently delete the note"""
-        if name in self.deleted_notes:
+        if _id in self.deleted_notes:
             try:
                 # Delete the note
-                self.cursor.execute(f"DELETE FROM notes_deleted WHERE title = ?", (name,))
+                self.cursor.execute(f"DELETE FROM notes_deleted WHERE id = ?", (_id,))
                 self.connection.commit()
                 self.gui.show_in_statusbar(f"Se ha eliminado permanentemente la nota: {name}")
             except Exception as e:
                 self.gui.show_in_statusbar(f"ERROR: No he podido eliminar la nota '{name}': {e}", mode="error")
 
-    def restore_note(self, name: str) -> None:
+    def restore_note(self, _id: int, name: str) -> None:
         """Permanently delete the note"""
-        if name in self.deleted_notes:
+        if _id in self.deleted_notes:
             try:
                 # Restore the note
                 self.cursor.execute(f"INSERT INTO notes (title, content)"
                                     "SELECT title, content "
                                     "FROM notes_deleted "
-                                    "WHERE title = ?",
-                                    (name,))
+                                    "WHERE id = ?",
+                                    (_id,))
                 # Delete the note on this table
-                self.cursor.execute(f"DELETE FROM notes_deleted WHERE title = ?", (name,))
+                self.cursor.execute(f"DELETE FROM notes_deleted WHERE id = ?", (_id,))
                 self.connection.commit()
                 self.gui.show_in_statusbar(f"Se ha restaurado la nota: {name}.")
             except Exception as e:
