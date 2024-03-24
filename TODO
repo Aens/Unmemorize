@@ -15,3 +15,6 @@ Maybe have Templates in notes?
 Auto-correct text in multiple languages, or suggestions if a word is badly written
 IA capabilities, read your notes and transform them with a custom prompt using an LLM?
 Deploy this as an .exe file
+
+-- OTHER --
+Investigate why the auto-save is triggered if a note is empty
