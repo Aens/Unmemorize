@@ -91,17 +91,21 @@ class NotesTab:
         layout = QGridLayout()
 
         # 2: Create the elements
-        # Create Label
-        label = QLabel(f"{title}:")
-        label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
+        # Create Title element
+        line_edit = QLineEdit(title)
+        line_edit.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
+        # Connect the leaveEvent signal to the rename_title method
+        line_edit.leaveEvent = (lambda event, note_id=_id, name_obj=line_edit:  # <-- Params
+                                self.rename_title(event="OnLeave", note_id=note_id, name_obj=name_obj))  # <-- Call
 
-        # Create TextEdit
+        # Create Editor element
         text_edit = QTextEdit()
         text_edit.setHtml(content)
         text_edit.setReadOnly(False)
         # Connect the leaveEvent signal to the save_note method
-        text_edit.leaveEvent = (lambda event, note_id=_id, name=title, obj=text_edit:  # <-- Params
-                                self.save_note(event="OnLeave", note_id=note_id, name=name, obj=obj))  # <-- Call
+        text_edit.leaveEvent = (
+            lambda event, note_id=_id, name_obj=line_edit, note_obj=text_edit:  # <-- Params
+            self.save_note(event="OnLeave", note_id=note_id, name_obj=name_obj, content=note_obj))  # <-- Call
 
         # Create buttons
         button_open = QPushButton("🔍")
@@ -125,14 +129,14 @@ class NotesTab:
         button_open.clicked.connect(lambda note_id=_id, name=title, obj=text_edit:  # <-- Params
                                     self.open_note(note_id=note_id, name=name, obj=obj))  # <-- Call
         button_save.clicked.connect(
-            lambda note_id=_id, name=title, obj=text_edit:  # <-- Params
-            self.save_note(event="OnButtonSave", note_id=note_id, name=name, obj=obj))  # <-- Call
+            lambda note_id=_id, name_obj=line_edit, note_obj=text_edit:  # <-- Params
+            self.save_note(event="OnButtonSave", note_id=note_id, name_obj=name_obj, content=note_obj))  # <-- Call
         button_delete.clicked.connect(lambda note_id=_id, name=title: self.delete_note(note_id=note_id, name=title))
         button_copy.clicked.connect(lambda name=title, obj=text_edit: self.copy_note(name=name, obj=obj))
 
         # 3: Add elements into the layout.
         # Values mean (element, row, col, row_span, column_span, alignment)
-        layout.addWidget(label, 0, 0, 1, 1)
+        layout.addWidget(line_edit, 0, 0, 1, 1)
         layout.addWidget(button_open, 0, 1, 1, 1)
         layout.addWidget(button_copy, 0, 2, 1, 1)
         layout.addWidget(button_save, 0, 3, 1, 1)
@@ -180,21 +184,24 @@ class NotesTab:
             self.gui.show_in_statusbar(f"Nota '{name}' no eliminada. Se ha cancelado el borrado.")
         return confirmation  # Needed to close floating note if deleted from there
 
-    def save_note(self, event: str, note_id: int, name: str, obj: QTextEdit) -> None:
+    def save_note(self, event: str, note_id: int, name_obj: QLineEdit, content: QTextEdit) -> None:
         """Save the text on the note and reload the layout"""
-        # Capture Events to make sure we only save on specific conditions
+        # 1 - Check if the note for what we triggered the event requires an actual save or nothing changed
+        # This is a huge efficiency trick, we don't want thosands of unnecesary reloads on the GUI
+        content = content.toHtml()
+        name = name_obj.text()
+        if content == self.notepad.notes[note_id][1] and name == self.notepad.notes[note_id][0]:
+            return   # DON'T save as it's not needed
+        # 2 - Capture Events to make sure we only save on specific conditions
         if event == "OnLeave":
             if not self.settings.AUTOSAVE:
                 return  # DON'T save on Leave Events if autosave is not ON.
         elif event == "OnButtonSave":
-            pass
-        # Check if the note for what we triggered the event requires an actual save or nothing changed
-        # This is a huge efficiency trick, we don't want thosands of unnecesary reloads on the GUI
-        value = obj.toHtml()
-        if value == self.notepad.notes[note_id][1]:
-            return   # DON'T save as it's not needed
+            if not name == self.notepad.notes[note_id][0]:  # <-- Only touch DB if needed
+                self.rename_title(event=event, note_id=note_id, name_obj=name_obj)
         # If we made it this far, okay, go ahead and save the note
-        self.notepad.save_note(_id=note_id, filename=name, value=value)
+        if not content == self.notepad.notes[note_id][1]:  # <-- Only touch DB if needed
+            self.notepad.save_note(_id=note_id, title=name, value=content)
         self.reload_notes_layout()
 
     def add_note(self) -> None:
@@ -208,6 +215,23 @@ class NotesTab:
             self.reload_notes_layout()
         else:
             self.gui.show_popup("Creación de Nota cancelada.")
+
+    def rename_title(self, event: str, note_id: int, name_obj: QLineEdit) -> None:
+        """Save the text on the note and reload the layout"""
+        # 1 - Check if the note for what we triggered the event requires an actual save or nothing changed
+        # This is a huge efficiency trick, we don't want thosands of unnecesary reloads on the GUI
+        value = name_obj.text()
+        if value and value == self.notepad.notes[note_id][0]:
+            return  # DON'T save as it's not needed
+        # 2 - Capture Events to make sure we only save on specific conditions
+        if event == "OnLeave":
+            if not self.settings.AUTOSAVE:
+                return  # DON'T save on Leave Events if autosave is not ON.
+            # If we made it this far, okay, go ahead and save the note
+            self.notepad.rename_note(_id=note_id, title=value)
+            self.reload_notes_layout()
+        elif event == "OnButtonSave":  # <-- this comes from save_note method only
+            self.notepad.rename_note(_id=note_id, title=value)
 
 
 class NewWindow(QDialog):
@@ -223,14 +247,19 @@ class NewWindow(QDialog):
         self.setWindowTitle(f"Nota: {name}")
         self.load_window_config()
 
-        # Create TextEdit and Labels
-        label = QLabel(f"{self.name}:")
-        label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)  # Set alignment to right
+        # Create LineEdit for Title
+        line_edit = QLineEdit(self.name)
+        line_edit.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)  # Set alignment to right
+        # Connect the leaveEvent signal to the rename_title method
+        line_edit.leaveEvent = (
+            lambda event, _id=self.note_id, name_obj=line_edit:  # <-- Params
+            self.notes_tab.rename_title(event="OnLeave", note_id=note_id, name_obj=name_obj))  # <-- Call
+        # Create TextEdit for Content
         self.text_edit = QTextEdit(self)
         self.text_edit.setHtml(text)
         self.text_edit.leaveEvent = (
-            lambda event, _id=self.note_id, _name=self.name, obj=self.text_edit:  # <-- params
-            self.notes_tab.save_note(event="OnLeave", note_id=note_id, name=_name, obj=obj))  # <-- call
+            lambda event, _id=self.note_id, name_obj=line_edit, obj=self.text_edit:  # <-- params
+            self.notes_tab.save_note(event="OnLeave", note_id=note_id, name_obj=name_obj, content=obj))  # <-- call
 
         # Create buttons
         button_copy = QPushButton("📝")
@@ -246,8 +275,8 @@ class NewWindow(QDialog):
         button_delete.setFixedSize(30, 30)
         # Connect buttons to functions
         button_save.clicked.connect(
-            lambda _id=self.note_id, _name=self.name, obj=self.text_edit:  # <-- params
-            self.notes_tab.save_note(event="OnButtonSave", note_id=note_id, name=_name, obj=obj))  # <-- call
+            lambda _id=self.note_id, name_obj=line_edit, obj=self.text_edit:  # <-- params
+            self.notes_tab.save_note(event="OnButtonSave", note_id=note_id, name_obj=name_obj, content=obj))  # <-- call
         button_delete.clicked.connect(self.delete_note_from_here)
         button_copy.clicked.connect(lambda _name=self.name, obj=self.text_edit:  # <-- params
                                     self.notes_tab.copy_note(_name, obj))  # <-- call
@@ -259,7 +288,7 @@ class NewWindow(QDialog):
         layout = QGridLayout(self)  # <-- pointer to re-populate it
         layout.setColumnStretch(1, 1)
         # Add buttons into the layout (element, row, col, IDK, spans this many columns)
-        layout.addWidget(label, 0, 0, 1, 1)
+        layout.addWidget(line_edit, 0, 0, 1, 1)
         layout.addWidget(button_copy, 0, 1, 1, 1)
         layout.addWidget(button_save, 0, 2, 1, 1)
         layout.addWidget(button_delete, 0, 3, 1, 1)

@@ -49,7 +49,7 @@ class SQLNotepad:
         except Exception as e:
             self.gui.show_in_statusbar(f"ERROR: No he podido crear la nota '{new_name}': {e}", mode="error")
 
-    def save_note(self, _id: int, filename: str, value: str) -> None:
+    def save_note(self, _id: int, title: str, value: str) -> None:
         """Saves a note with these new values to the database"""
         if _id in self.notes:
             try:
@@ -58,9 +58,22 @@ class SQLNotepad:
                                     'SET content = ? '
                                     'WHERE id = ?', (value, _id))
                 self.connection.commit()
-                self.gui.show_in_statusbar(f"Nota '{filename}' guardada con éxito.")
+                self.gui.show_in_statusbar(f"Nota '{title}' guardada con éxito.")
             except Exception as e:
-                self.gui.show_in_statusbar(f"ERROR: No he podido guardar la nota '{filename}': {e}", mode="error")
+                self.gui.show_in_statusbar(f"ERROR: No he podido guardar la nota '{title}': {e}", mode="error")
+
+    def rename_note(self, _id: int, title: str) -> None:
+        """Saves a note with these new values to the database"""
+        if _id in self.notes:
+            try:
+                # Update the content of the existing note in the database
+                self.cursor.execute('UPDATE notes '
+                                    'SET title = ? '
+                                    'WHERE id = ?', (title, _id))
+                self.connection.commit()
+                self.gui.show_in_statusbar(f"Titulo de '{title}' renombrado con éxito.")
+            except Exception as e:
+                self.gui.show_in_statusbar(f"ERROR: No he podido renombrar la nota '{title}': {e}", mode="error")
 
     def delete_note(self, _id: int, name: str) -> None:
         """It doesn't delete notes, it just moves them to a different table"""
