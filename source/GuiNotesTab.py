@@ -37,8 +37,7 @@ class NotesTab:
         add_note_button = QPushButton('Añadir otra nota')
         add_note_button.clicked.connect(self.add_note)
         deleted_notes_label = QLabel(
-            "Las notas borradas no se 'borran', se quedan guardadas en la base de datos "
-            "por si acaso borras una importante sin querer.")
+            "Las notas que borradas se mandan a la pestaña de notas borradas por si borras una importante sin querer.")
         deleted_notes_label.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
 
         # NOTES
