@@ -163,8 +163,8 @@ class PrivateNotesTab:
 
     def open_note(self, note_id: int, name: str, obj: QTextEdit) -> None:
         """Copy the note into notepad"""
-        # new_window = NewWindow(self.gui, notes_tab=self, note_id=note_id, name=name, text=obj.toHtml())  # TODO ENABLE
-        # new_window.show()
+        new_window = NewWindow(self.gui, notes_tab=self, note_id=note_id, name=name, text=obj.toHtml())
+        new_window.show()
         self.gui.show_in_statusbar(f"Nota '{name}' maximizada.")
 
     def copy_note(self, name: str, obj: QTextEdit) -> None:
