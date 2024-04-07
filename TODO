@@ -1,9 +1,9 @@
 -- EASY --
 Send the floating window info to its statusbar, not the main statusbar
-Fix the background issues on QTableWidgets
 Add a button to explain the shortcuts
 Add a 2nd deep level for lists
 -- MEDIUM --
+Add a new Order column in the database for the notes, to make them orderable, as a small number field on the corner, to reload.
 Fix the copy to clipboard not copying the formats and colors (ToHTML, ToMarkdown and ToPlainText do not do that)
 Complete the Private Notes Tab
 Complete the TasksToDoTab
@@ -12,6 +12,12 @@ Set a minimum size for each note, both width and height (with too many, on verti
 Make possible to resize/move the grid splitters (add splitters)
 Maybe have Templates in notes?
 -- HARD --
+Compile to exe, or add an auto-installer
 Auto-correct text in multiple languages, or suggestions if a word is badly written
 IA capabilities, read your notes and transform them with a custom prompt using an LLM?
 Deploy this as an .exe file
+
+-- BUGS --
+Fix the background issues on QTableWidgets
+Find a better way to save the Notes and Title of notes. As "leaving the mouse out" misses some scenarios
+    Example: When you enter the field, click on it, move mouse out and then start writing. As mouse was already out, it won't save.
