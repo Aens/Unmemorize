@@ -5,7 +5,6 @@ Add a 2nd deep level for lists
 -- MEDIUM --
 Add a new Order column in the database for the notes, to make them orderable, as a small number field on the corner, to reload.
 Fix the copy to clipboard not copying the formats and colors (ToHTML, ToMarkdown and ToPlainText do not do that)
-Complete the Private Notes Tab
 Complete the TasksToDoTab
 Make the shortcuts or the Formatting Editor in the main window available for all notes
 Set a minimum size for each note, both width and height (with too many, on vertical mode they are just tiny)
@@ -19,5 +18,5 @@ Deploy this as an .exe file
 
 -- BUGS --
 Fix the background issues on QTableWidgets
-Find a better way to save the Notes and Title of notes. As "leaving the mouse out" misses some scenarios
+Find a better way to save the Notes and Title of notes. As "OnLeave" misses some scenarios
     Example: When you enter the field, click on it, move mouse out and then start writing. As mouse was already out, it won't save.
