@@ -37,7 +37,7 @@ class NotesTab:
         add_note_button = QPushButton('Añadir otra nota')
         add_note_button.clicked.connect(self.add_note)
         deleted_notes_label = QLabel(
-            "Las notas que borradas se mandan a la pestaña de notas borradas por si borras una importante sin querer.")
+            "Las notas que borra se mandan a la pestaña de notas borradas por si borras una importante sin querer.")
         deleted_notes_label.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
 
         # NOTES
@@ -176,7 +176,7 @@ class NotesTab:
         """Delete the note and reload the layout"""
         confirmation = self.gui.ask_for_confirmation(message=f"Seguro que quieres eliminar la nota: {name}")
         if confirmation:
-            self.notepad.delete_note(_id=note_id, name=name)
+            self.notepad.delete_note(_id=note_id, name=name, table="notes")
             self.reload_notes_layout()
             self.gui.deleted_notes.populate_table()
         else:
@@ -200,16 +200,16 @@ class NotesTab:
                 self.rename_title(event=event, note_id=note_id, name_obj=name_obj)
         # If we made it this far, okay, go ahead and save the note
         if not content == self.notepad.notes[note_id][1]:  # <-- Only touch DB if needed
-            self.notepad.save_note(_id=note_id, title=name, value=content)
+            self.notepad.save_note(_id=note_id, title=name, value=content, table="notes")
         self.reload_notes_layout()
 
     def add_note(self) -> None:
         """Implements the logic to add a new note"""
         # Capture name of the new file by asking in a popup
-        name, ok = QInputDialog.getText(self.gui, "Add Note", "Enter the name for the new note:", QLineEdit.Normal, "")
+        name, ok = QInputDialog.getText(self.gui, "Creación de Nota", "Escribe un titulo para la nota:", QLineEdit.Normal, "")
         if ok and name.strip():
             # Create that file
-            self.notepad.add_note(name)
+            self.notepad.add_note(new_name=name, table="notes")
             # Reload notes and layout to also show the new file
             self.reload_notes_layout()
         else:
@@ -227,10 +227,10 @@ class NotesTab:
             if not self.settings.AUTOSAVE:
                 return  # DON'T save on Leave Events if autosave is not ON.
             # If we made it this far, okay, go ahead and save the note
-            self.notepad.rename_note(_id=note_id, title=value)
+            self.notepad.rename_note(_id=note_id, title=value, table="notes")
             self.reload_notes_layout()
         elif event == "OnButtonSave":  # <-- this comes from save_note method only
-            self.notepad.rename_note(_id=note_id, title=value)
+            self.notepad.rename_note(_id=note_id, title=value, table="notes")
 
 
 class NewWindow(QDialog):
