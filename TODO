@@ -2,6 +2,7 @@
 Send the floating window info to its statusbar, not the main statusbar
 Add a button to explain the shortcuts
 Add a 2nd deep level for lists
+Add a Diffuminated layer for private notes
 -- MEDIUM --
 Add a new Order column in the database for the notes, to make them orderable, as a small number field on the corner, to reload.
 Fix the copy to clipboard not copying the formats and colors (ToHTML, ToMarkdown and ToPlainText do not do that)

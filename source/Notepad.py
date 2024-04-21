@@ -41,11 +41,11 @@ class SQLNotepad:
     def reload_deleted_notes(self):
         """Clean the previous list. Load notes from the database into the class"""
         self.deleted_notes.clear()
-        self.cursor.execute('SELECT id, title, content, deleted_at FROM notes_deleted')
+        self.cursor.execute('SELECT id, title, content, deleted_at, deleted_from FROM notes_deleted')
         rows = self.cursor.fetchall()
         for row in rows:
-            _id, title, content, deleted_at = row
-            self.deleted_notes[_id] = (title, content, deleted_at)
+            _id, title, content, deleted_at, deleted_from = row
+            self.deleted_notes[_id] = (title, content, deleted_at, deleted_from)
 
     def add_note(self, new_name: str, table: str):
         """Adds a new note to the database"""
@@ -88,13 +88,13 @@ class SQLNotepad:
         try:
             deleted_time = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S")
             # Move the note to a different table
-            self.cursor.execute(f"INSERT INTO notes_deleted (title, content, deleted_at)"
-                                "SELECT title, content, ? "
+            self.cursor.execute(f"INSERT INTO notes_deleted (title, content, deleted_at, deleted_from) "
+                                "SELECT title, content, ?, ? "
                                 f"FROM {table} "
                                 "WHERE id = ?",
-                                (deleted_time, _id))
+                                (deleted_time, table, _id))
             # Delete the note on this table
-            self.cursor.execute(f"DELETE FROM notes WHERE id = ?", (_id,))
+            self.cursor.execute(f"DELETE FROM {table} WHERE id = ?", (_id,))
             self.connection.commit()
             self.gui.show_in_statusbar(f"Se ha movido la nota: {name} a la tabla de notas borradas")
         except Exception as e:
@@ -113,8 +113,11 @@ class SQLNotepad:
     def restore_note(self, _id: int, name: str) -> None:
         """Permanently delete the note"""
         try:
+            # Get table name
+            self.cursor.execute("SELECT deleted_from FROM notes_deleted WHERE id = ?", (_id,))
+            table = self.cursor.fetchone()[0]
             # Restore the note
-            self.cursor.execute(f"INSERT INTO notes (title, content)"
+            self.cursor.execute(f"INSERT INTO {table} (title, content)"
                                 "SELECT title, content "
                                 "FROM notes_deleted "
                                 "WHERE id = ?",
@@ -142,6 +145,19 @@ class PrepareDatabase:
             self.create_database_tables()
         # IF database is missing some columns
         self.check_if_fixes_are_needed()
+        self.fix_deletion()
+
+    def fix_deletion(self):  # TODO temporary
+        """Automatically assign values to new column, and delete old table"""
+        self.cursor.execute("SELECT * FROM notes_deleted WHERE deleted_from IS NULL OR deleted_from = ''")
+        records = self.cursor.fetchall()
+        if records:
+            for record in records:
+                self.cursor.execute("UPDATE notes_deleted SET deleted_from = 'notes' WHERE id = ?", (record[0],))
+        self.connection.commit()
+        # Remove the unudes table
+        self.cursor.execute("DROP TABLE IF EXISTS private_notes_deleted")
+        self.connection.commit()
 
     def create_database_tables(self) -> None:
         """Create all the needed tables for the program to work with"""
@@ -152,24 +168,18 @@ class PrepareDatabase:
             content TEXT)
             """)
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS notes_deleted 
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT, 
-            content TEXT, 
-            deleted_at TEXT)
-            """)
-        self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS private_notes 
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT, 
             content TEXT)
             """)
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS private_notes_deleted 
+            CREATE TABLE IF NOT EXISTS notes_deleted 
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT, 
             content TEXT, 
-            deleted_at TEXT)
+            deleted_at TEXT,
+            deleted_from TEXT)
             """)
         self.connection.commit()
 
@@ -177,9 +187,8 @@ class PrepareDatabase:
         """Check if we have all the needed databases with the correct columns"""
         tables = {
             "notes":                 ['id', 'title', 'content'],
-            "notes_deleted":         ['id', 'title', 'content', 'deleted_at'],
             "private_notes":         ['id', 'title', 'content'],
-            "private_notes_deleted": ['id', 'title', 'content', 'deleted_at']
+            "notes_deleted":         ['id', 'title', 'content', 'deleted_at', 'deleted_from']
         }
         tables_to_fix = []
         # 1 - Check if the table doesn't have all the required columns
@@ -228,7 +237,7 @@ class PrepareDatabase:
         time_now = datetime.strftime(datetime.now(), "%y-%m-%d %H_%M_%S")
         backup_db_path = Path.cwd().joinpath(f"notes/notes_backup_{time_now}.db")
         shutil.copy(self.db_path, backup_db_path)
-        print("Database structure needs update, so I've created a backup in the Notes folder")
+        print("Database structure needs update, so I've created a backup in the Notes folder for safety")
 
     def check_table_columns(self, table_name: str, required_columns: list) -> bool:
         """Check if all columns exists in a table"""
