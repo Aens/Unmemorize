@@ -7,10 +7,12 @@ Add a Diffuminated layer for private notes
 Add a new Order column in the database for the notes, to make them orderable, as a small number field on the corner, to reload.
 Fix the copy to clipboard not copying the formats and colors (ToHTML, ToMarkdown and ToPlainText do not do that)
 Complete the TasksToDoTab
+Add a "Find" button, to find a substring among all notes, like a global Search.
 Make the shortcuts or the Formatting Editor in the main window available for all notes
 Set a minimum size for each note, both width and height (with too many, on vertical mode they are just tiny)
 Make possible to resize/move the grid splitters (add splitters)
 Maybe have Templates in notes?
+Make possible add images to the notes (how do we store that into the DB?)
 -- HARD --
 Compile to exe, or add an auto-installer
 Auto-correct text in multiple languages, or suggestions if a word is badly written
@@ -18,6 +20,8 @@ IA capabilities, read your notes and transform them with a custom prompt using a
 Deploy this as an .exe file
 
 -- BUGS --
+Fix that it remembers the screen where the program is. By default it always opens on main screen even if you have 3.
+Fix unability to paste code from Win + V
 Fix the background issues on QTableWidgets
 Find a better way to save the Notes and Title of notes. As "OnLeave" misses some scenarios
     Example: When you enter the field, click on it, move mouse out and then start writing. As mouse was already out, it won't save.
