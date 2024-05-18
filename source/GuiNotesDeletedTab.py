@@ -25,7 +25,7 @@ class DeletedNotesTab:
         """Create the private notes layout and sets it"""
         layout = QtWidgets.QVBoxLayout(self.this_tab)
         # Create table widget
-        self.tableWidget.setColumnCount(5)
+        self.tableWidget.setColumnCount(6)
         self.tableWidget.setHorizontalHeaderLabels(["Nombre", "Notas", "Tipo", "Fecha de borrado", "Restaurar", "Borrar"])
         self.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)  # Adjust the width
         self.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)  # Stretch the middle column
@@ -71,8 +71,8 @@ class DeletedNotesTab:
             delete_button.clicked.connect(lambda hackfix=None, note_id=_id, name=values[0]:  # <-- Params
                                           self.delete_forever(note_id=note_id, name=name))  # <-- Call
             # Add buttons to the actual columns
-            self.tableWidget.setCellWidget(i, 3, restore_button)
-            self.tableWidget.setCellWidget(i, 4, delete_button)
+            self.tableWidget.setCellWidget(i, 4, restore_button)
+            self.tableWidget.setCellWidget(i, 5, delete_button)
 
     def delete_forever(self, note_id: int, name: str) -> None:
         """Delete a note forever"""
