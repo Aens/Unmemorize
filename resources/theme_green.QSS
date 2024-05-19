@@ -254,6 +254,11 @@ QHeaderView::section {
     color: #000000;
     font: bold 10pt "Futura Md BT";}
 
+/* TODO fix this, any other color than ffffff shows weird */
+QHeaderView::section:checked {
+    background-color: #ffffff;
+    color: #000000;}
+
 QTableView::item:selected {
     background-color: #389B3E;
     color: #2A2F1A;}
